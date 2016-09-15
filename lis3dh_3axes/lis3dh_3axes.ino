@@ -1,7 +1,9 @@
-/*
-Surf sim 
-acceleroeter Redbear Duo code
-*/
+/* Graph I2C Accelerometer On RedBear Duo over Serial Port
+ * Adafruit Part 2809 LIS3DH - http://adafru.it/2809
+ * This example shows how to program I2C manually
+ * I2C Pins SDA1==D0, SCL1 == D1
+ * Default address: 0x18
+ */
  
 // do not use the cloud functions - assume programming through Arduino IDE
 #if defined(ARDUINO) 
@@ -13,6 +15,7 @@ SYSTEM_MODE(MANUAL);
 #include "Adafruit_Sensor.h"
 
 #define PI 3.1415
+#define button D8
 
 typedef struct ACCEL_DATA {
   float xG, yG, zG;
@@ -22,23 +25,63 @@ typedef struct ACCEL_DATA {
 // Accelerometer 
 ACCEL_DATA accel_data;
 
+//states
+void start_screen();
+void play();
+void over();
+
 // I2C
 Adafruit_LIS3DH lis = Adafruit_LIS3DH();
+bool start = 0;
+void (*next_state)() = start_screen;
 
 
 void setup(void) {
   
   Serial.begin(9600);
+  pinMode(button,INPUT_PULLUP);
   
   LIS3DH_init();
 }
 
 void loop() {
-  
-  LIS3DH_getData();
-  LIS3DH_sendData();
- 
+
+  (*next_state)(); 
   delay(33); //33Hz update rate
+}
+
+void start_screen() {
+  if(!digitalRead(button)){
+    while(!digitalRead(button))
+      ;
+    next_state = play;
+    Serial.printf("1\n");
+  }
+  else {
+    next_state = start_screen;
+    Serial.printf("0\n");
+  }
+}
+
+void play() {
+  if(!digitalRead(button)) {
+    while(!digitalRead(button))
+      ;
+    next_state = over;
+    Serial.printf("2\n");
+  }
+  else{
+    LIS3DH_getData();
+    Serial.printf("1\n");
+    LIS3DH_sendData();
+    next_state = play;
+  }
+}
+
+void over() {
+  delay(3000);
+  Serial.printf("0\n");
+  next_state = start_screen;
 }
 
 boolean LIS3DH_init(void) {
