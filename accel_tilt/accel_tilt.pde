@@ -35,14 +35,14 @@ void setup() {
      myPort = new Serial(this, Serial.list()[2], 9600);
   // only generate a serial event when you get a newline: 
     myPort.bufferUntil('\n');
-    SurfBoard = loadShape("SurfBoard.obj");
+    //SurfBoard = loadShape("SurfBoard.obj");
+    //SurfBoard = loadShape("customboard.obj");
+    SurfBoard = loadShape("smallboard.obj");
 } 
 
 void draw() {
   //background(#20542E);
-  hint(DISABLE_DEPTH_TEST);
   background(wave);
-  hint(ENABLE_DEPTH_TEST);  
   
   if(state == 0) {
     start_screen();
@@ -67,7 +67,7 @@ void play() {
   if(new_target) {
     // translate from origin to center: 
     new_target_roll = random(-30,30);
-    new_target_pitch = random(30,30);
+    new_target_pitch = random(-30,30);
     //target_roll = -5;
     //target_pitch = -5;
     new_target = false;  
@@ -88,7 +88,7 @@ void play() {
     
     //translate(width/2,8*height/10);
     textAlign(CENTER);
-    fill(0xFF000000);
+    fill(0xFFFF0000);
     text(nailed_it_strings[i],width/2,8*height/10);
     
     if(!printed_text){
@@ -114,11 +114,9 @@ void drawtarget() {
     moving_roll = false;
   }
   else if(new_target_roll > target_roll){
-    print("here");
     target_roll += 0.5;
   }
   else if(new_target_roll < target_roll){
-    print("there");
     target_roll -= 0.5;
   }
   
@@ -133,9 +131,15 @@ void drawtarget() {
     target_pitch -= 0.5;
   }
   
+ 
   target.rotateX(radians(target_roll + 90));
   target.rotateY(radians(target_pitch));
   target.rotateZ(radians(90));
+
+  /*
+  target.rotateX(target_roll + 90);
+  target.rotateZ(target_pitch);
+  */
   //target.box(80);
   //target.fill(#E014A3);
   //target.setFill(color(255,0,0));
@@ -150,9 +154,15 @@ void drawboard() {
   board.clear();
   board.noStroke();
   board.translate(width/2, height/2);
+  
   board.rotateX(radians(roll + 90));
   board.rotateY(radians(pitch) );
   board.rotateZ(radians(90));
+
+  /*
+  board.rotateX(radians(roll + 90));
+  board.rotateZ(radians(pitch) );
+  */
   if((abs(pitch - target_pitch) < eps) && abs(roll - target_roll) < eps && !moving_pitch && !moving_roll){ 
     if(!holding){
        hold_time = millis();
