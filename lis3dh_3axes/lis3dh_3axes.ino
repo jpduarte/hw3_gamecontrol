@@ -1,3 +1,4 @@
+
 /* Graph I2C Accelerometer On RedBear Duo over Serial Port
  * Adafruit Part 2809 LIS3DH - http://adafru.it/2809
  * This example shows how to program I2C manually

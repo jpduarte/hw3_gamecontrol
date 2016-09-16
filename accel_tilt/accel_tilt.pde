@@ -32,10 +32,10 @@ void setup() {
   board = createGraphics(width, height, P3D);
    wave = loadImage("wave_2.jpg");
    
-     myPort = new Serial(this, Serial.list()[2], 9600);
+    // myPort = new Serial(this, Serial.list()[0], 9600);
   // only generate a serial event when you get a newline: 
-    myPort.bufferUntil('\n');
-    SurfBoard = loadShape("SurfBoard.obj");
+    //myPort.bufferUntil('\n');
+    //SurfBoard = loadShape("SurfBoard.obj");
 } 
 
 void draw() {
@@ -181,6 +181,7 @@ void drawboard() {
   }
 }
 
+/*
 void serialEvent(Serial myPort) {
   // read the serial buffer:
   String myString = myPort.readStringUntil('\n');
@@ -204,4 +205,4 @@ void serialEvent(Serial myPort) {
       //print("Pitch: ",pitch,"\tRoll: ",roll,"\n");
     }
   } 
-}
+}*/
