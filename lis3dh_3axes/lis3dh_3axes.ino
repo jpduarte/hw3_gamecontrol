@@ -1,4 +1,3 @@
-
 /* Graph I2C Accelerometer On RedBear Duo over Serial Port
  * Adafruit Part 2809 LIS3DH - http://adafru.it/2809
  * This example shows how to program I2C manually
@@ -25,17 +24,8 @@ typedef struct ACCEL_DATA {
 
 // Accelerometer 
 ACCEL_DATA accel_data;
-
-//states
-void start_screen();
-void play();
-void over();
-
 // I2C
 Adafruit_LIS3DH lis = Adafruit_LIS3DH();
-bool start = 0;
-void (*next_state)() = start_screen;
-
 
 void setup(void) {
   
@@ -46,43 +36,9 @@ void setup(void) {
 }
 
 void loop() {
-
-  (*next_state)(); 
-  delay(33); //33Hz update rate
-}
-
-void start_screen() {
-  if(!digitalRead(button)){
-    while(!digitalRead(button))
-      ;
-    next_state = play;
-    Serial.printf("1\n");
-  }
-  else {
-    next_state = start_screen;
-    Serial.printf("0\n");
-  }
-}
-
-void play() {
-  if(!digitalRead(button)) {
-    while(!digitalRead(button))
-      ;
-    next_state = over;
-    Serial.printf("2\n");
-  }
-  else{
-    LIS3DH_getData();
-    Serial.printf("1\n");
-    LIS3DH_sendData();
-    next_state = play;
-  }
-}
-
-void over() {
-  delay(3000);
-  Serial.printf("0\n");
-  next_state = start_screen;
+  LIS3DH_getData();
+  LIS3DH_sendData();
+  delay(33); //30Hz update rate
 }
 
 boolean LIS3DH_init(void) {
@@ -98,45 +54,17 @@ boolean LIS3DH_init(void) {
         return 1;
 }
 
-void LIS3DH_printXYZ(void) {
-        // get X Y and Z data at once
-        lis.read();
-
-        // print out raw data
-        //Serial.printf("Raw Data: \tX: %d \tY: %d \tZ: %d \n",lis.x,lis.y,lis.z);
-
-        //get a new sensor event, normalized
-        sensors_event_t event;
-        lis.getEvent(&event);
-
-        // Display the results (acceleration measured in m/s^2)
-        Serial.printf("Acceleration: \tX: %f m/s^2 \tY: %f m/s^2 \tZ: %f m/s^2 \n",(event.acceleration.x/(9.8)),(event.acceleration.y/(9.8)),(event.acceleration.z/(9.8)));
-
-}
-
 void LIS3DH_sendData(void) {
-  
-        // Display the results (acceleration measured in m/s^2)
-        /*
-        Serial.printf("%f\n",accel_data.xG);
-        Serial.printf("%f\n",accel_data.yG);
-        Serial.printf("%f\n",accel_data.zG);
-        */
-
-        Serial.printf("%f,%f\n",accel_data.pitch,accel_data.roll);
+        Serial.printf("%f,%f,%i\n",accel_data.pitch,accel_data.roll,digitalRead(button));
 }
 
 void LIS3DH_getData(void) {
+        //REMINDER, I2C Pins SDA1==D0, SCL1 == D1
         // get X Y and Z data at once
         lis.read();
-
-        // print out raw data
-        //Serial.printf("Raw Data: \tX: %d \tY: %d \tZ: %d \n",lis.x,lis.y,lis.z);
-
         //get a new sensor event, normalized
         sensors_event_t event;
         lis.getEvent(&event);
-
         //Get the results (acceleration measured in m/s^2)
         accel_data.xG = (event.acceleration.x/(9.8));
         accel_data.yG = (event.acceleration.y/(9.8));
@@ -147,5 +75,4 @@ void LIS3DH_getData(void) {
 
         accel_data.pitch = accel_data.pitch * (180/PI);
         accel_data.roll = accel_data.roll * (180/PI);
-
 }
