@@ -33,9 +33,13 @@ String[] nailed_it_strings = {"Nailed It!", "Radical!", "Get Pitted!", "Gnarly!"
 int num_string = 5;
 int i = 0, sound = 0;
 boolean printed_text = false;
+
+//sound declaration
 SoundFile ding, surf_music;
 SoundFile wack, so_pitted, bro, whoo, so_sick;
 int sound_length = 4;
+
+
 int start_time, countdown;
 boolean first_time = true;
 String countdown_string[] = {"3","2","1"};
@@ -62,6 +66,7 @@ void setup() {
   animation2 = new Animation("wipeout/tmp-", 31);
   animation3 = new Animation("surfrelax/tmp-", 30);
   
+  //sound stuff
   ding = new SoundFile(this,"ding.mp3");
   surf_music = new SoundFile(this,"surf_music.mp3");
   wack = new SoundFile(this,"wack.mp3");
@@ -69,6 +74,7 @@ void setup() {
   bro = new SoundFile(this,"bro.mp3");
   whoo = new SoundFile(this,"whoo.mp3");
   so_sick = new SoundFile(this,"so_sick.mp3");
+  surf_music.loop();
   //nailed_it_sound[1] = new SoundFile(this,"so_pitted.mp3");
   
   target = createGraphics(width, height, P3D);
@@ -79,7 +85,7 @@ void setup() {
   // only generate a serial event when you get a newline: 
   myPort.bufferUntil('\n');
   SurfBoard = loadShape("SurfBoard.obj");
-  surf_music.loop();
+
   //SurfBoard = loadShape("customboard.obj");
   //SurfBoard = loadShape("smallboard.obj");
 } 
@@ -273,6 +279,8 @@ void drawboard() {
     new_target = true;
     nailed_it = true;
     printed_text = false;
+    
+    //sound stuff
     ding.play();
     if(sound == 0)
       wack.play();
