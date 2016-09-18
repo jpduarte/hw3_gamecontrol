@@ -1,3 +1,5 @@
+import processing.sound.*;
+
 //Graphic variables
 PGraphics boardaux;
 Animation animation0,animation1, animation2,animation3;
@@ -33,6 +35,11 @@ int time_level=20;
 int hold = 1000;
 int hold_time, time;
 int time_to_fail=20;
+//sound declaration
+SoundFile ding, surf_music;
+SoundFile wack, so_pitted, bro, whoo, so_sick;
+int sound_length = 4;
+int sound = 0;
 
 
 void setup() {
@@ -50,11 +57,22 @@ void setup() {
   // only generate a serial event when you get a newline: 
   myPort.bufferUntil('\n');
   SurfBoard = loadShape("SurfBoard.obj");
+  SurfBoard.scale(1.8);
   
   vector_target = new PVector(0,0);//pitch,roll
   vector_player = new PVector(0,0);//pitch,roll
   vector_delta = new PVector(0,0);
   vector_target_draw =  new PVector(0,0);
+  
+  //sound stuff
+  ding = new SoundFile(this,"ding.mp3");
+  surf_music = new SoundFile(this,"surf_music.mp3");
+  wack = new SoundFile(this,"wack.mp3");
+  so_pitted = new SoundFile(this,"so_pitted.mp3");
+  bro = new SoundFile(this,"bro.mp3");
+  whoo = new SoundFile(this,"whoo.mp3");
+  so_sick = new SoundFile(this,"so_sick.mp3");
+  surf_music.loop();  
 } 
 
 void draw() {
@@ -76,12 +94,14 @@ void draw() {
     animation1.display(0, 0);
     if (feetsensor==0) {
       start_screen();
-      state=3;
+      state=3;       
     } else {
       play();
     }
     break;
   case 3: //wipeout
+      //change color screen when target is far
+    tint(255,255,255,255);
     animation2.display(0, 0);
     if (feetsensor==1) {
       play();
@@ -122,7 +142,7 @@ void play() {
   float distance;
   
   if (new_target) {
-    vector_target.set(random(-15, 15),random(-6, 6));//pitch,roll
+    vector_target.set(random(-10, 10),random(-6, 6));//pitch,roll
     vector_delta = PVector.sub(vector_target, vector_target_draw);
     vector_delta = vector_delta.div(frame_targe_transition);
     count_target_update = 0;
@@ -143,11 +163,15 @@ void play() {
   drawboardaux(vector_target_draw.x,vector_target_draw.y,255,255,255,255);
 
   //draw board current position
-  drawboardaux(vector_player.x,vector_player.y,255,255,255, 128);
+  drawboardaux(vector_player.x,vector_player.y,tintr, tintg , tintb , 128);
 
   //check if player is close to target, NEED TO BE FIXED
   distance = PVector.dist(vector_target,vector_player);
   if (distance<5.0){
+    //change color screen when target is close
+    tintr= 0;
+    tintb= 0;
+    tintg =255;
     if (!holding) {
       holding=true;
       hold_time = millis();
@@ -158,35 +182,59 @@ void play() {
     if (count_target_update==frame_targe_transition) {
       nailed_it = false;
     }
+    //change color screen when target is far
+    tintr= 255;
+    tintb= 255;
+    tintg =255;    
   }  
   time = millis();
+  //check if player has hold postion for a "hold" time
   if ((time - hold_time >= hold) && holding) {
+    //change color screen when target is far
+    tintr= 255;
+    tintb= 255;
+    tintg =255;     
     print("holding done");
     new_target = true;
     nailed_it = true;
     holding=false;
     time_level = time_to_fail+(int(millis()/1000));//TODO, 20 as variable
+    //sound stuff
+    ding.play();
+    if(sound == 0)
+      wack.play();
+      else if(sound == 1)
+        so_pitted.play();
+              else if(sound == 2)
+                bro.play();
+                else if(sound == 3)
+                  whoo.play();
+                  else if(sound == 4)
+                    so_sick.play();
+    sound++;
+    if(sound > sound_length)
+      sound = 0;    
   } 
  
   //draw timer in screen
   drawtimer();
 }
 
-void drawboardaux(float pitch_draw,float roll_draw, float v1, float v2,  float v3,  int alpha ) {
+void drawboardaux(float pitch_draw,float roll_draw, float vR, float vG,  float vB,  int alpha ) {
   //this funtion draw a surfboard for given pitch and roll angles, also change color and transparency 
   boardaux.beginDraw();
   boardaux.lights();
   boardaux.clear();
   boardaux.noStroke();
-  boardaux.translate(width/2, height/2);
+  boardaux.translate(width/4, height*3/4);
 
   boardaux.rotateX(radians(roll_draw + 90));
   boardaux.rotateY(radians(pitch_draw) );
-  boardaux.rotateZ(radians(90));
+  boardaux.rotateZ(radians(180));
 
   boardaux.shape(SurfBoard);
   boardaux.endDraw();
-  tint(v1,v2,v3,alpha);
+  tint(vR,vG,vB,alpha);
   image(boardaux, 0, 0);
 
 }
