@@ -30,8 +30,9 @@ PFont font_game;
 //time control variables
 int time_game;
 int time_level=20;
-int hold = 2000;
+int hold = 1000;
 int hold_time, time;
+int time_to_fail=20;
 
 
 void setup() {
@@ -66,6 +67,7 @@ void draw() {
     if (feetsensor==1) {
       play();
       state=1;
+      time_level = time_to_fail+(int(millis()/1000));//TODO, 20 as variable
     } else {
       start_screen();
     }
@@ -120,13 +122,11 @@ void play() {
   float distance;
   
   if (new_target) {
-    vector_target = PVector.mult(PVector.random2D(),15);
+    vector_target.set(random(-15, 15),random(-6, 6));//pitch,roll
     vector_delta = PVector.sub(vector_target, vector_target_draw);
     vector_delta = vector_delta.div(frame_targe_transition);
     count_target_update = 0;
     // translate from origin to center: 
-    new_target_roll = random(-30, 30);
-    new_target_pitch = random(-30, 30);
     new_target = false;
   }
 
@@ -147,8 +147,7 @@ void play() {
 
   //check if player is close to target, NEED TO BE FIXED
   distance = PVector.dist(vector_target,vector_player);
-  if (distance<3.0){
-    
+  if (distance<5.0){
     if (!holding) {
       holding=true;
       hold_time = millis();
@@ -166,7 +165,7 @@ void play() {
     new_target = true;
     nailed_it = true;
     holding=false;
-    time_level = time_level+(int(millis()/1000));
+    time_level = time_to_fail+(int(millis()/1000));//TODO, 20 as variable
   } 
  
   //draw timer in screen
