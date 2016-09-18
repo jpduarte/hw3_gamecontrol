@@ -55,7 +55,7 @@ boolean LIS3DH_init(void) {
 }
 
 void LIS3DH_sendData(void) {
-        Serial.printf("%f,%f,%i\n",accel_data.pitch,accel_data.roll,digitalRead(button));
+        Serial.printf("%f,%f,%i\n",accel_data.pitch,accel_data.roll,!digitalRead(button));
 }
 
 void LIS3DH_getData(void) {

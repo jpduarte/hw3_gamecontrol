@@ -1,8 +1,13 @@
+import processing.sound.*;
+
 PGraphics target;
 PGraphics board;
 Animation animation0,animation1, animation2,animation3;
 
 import processing.serial.*;                  // import the serial lin
+//import processing.sound.*;
+
+
 //variables from serial port (coming from RedBear Duo)
 float pitch, roll; 
 int feetsensor;                           
@@ -26,8 +31,28 @@ int hold_time, time;
 boolean moving_roll = true, moving_pitch = true;
 String[] nailed_it_strings = {"Nailed It!", "Radical!", "Get Pitted!", "Gnarly!", "Killing It!"};
 int num_string = 5;
-int i = 0;
+int i = 0, sound = 0;
 boolean printed_text = false;
+SoundFile ding, surf_music;
+SoundFile wack, so_pitted, bro, whoo, so_sick;
+int sound_length = 4;
+int start_time, countdown;
+boolean first_time = true;
+String countdown_string[] = {"3","2","1"};
+int count_index = 0;
+
+//countdown and score
+PFont font, font2;
+int t, t2;
+int lastTime=0;
+String time2 = "30";
+String timeA = "05";
+int interval=7;
+int interval2=30;
+int score=0;
+boolean nextTime=false;
+
+//SoundFile nailed_it_sound[2];
 
 void setup() {
   size(736, 552, P3D); 
@@ -37,14 +62,24 @@ void setup() {
   animation2 = new Animation("wipeout/tmp-", 31);
   animation3 = new Animation("surfrelax/tmp-", 30);
   
+  ding = new SoundFile(this,"ding.mp3");
+  surf_music = new SoundFile(this,"surf_music.mp3");
+  wack = new SoundFile(this,"wack.mp3");
+  so_pitted = new SoundFile(this,"so_pitted.mp3");
+  bro = new SoundFile(this,"bro.mp3");
+  whoo = new SoundFile(this,"whoo.mp3");
+  so_sick = new SoundFile(this,"so_sick.mp3");
+  //nailed_it_sound[1] = new SoundFile(this,"so_pitted.mp3");
+  
   target = createGraphics(width, height, P3D);
   board = createGraphics(width, height, P3D);
   wave = loadImage("wave_2.jpg");
 
-  myPort = new Serial(this, Serial.list()[0], 9600);
+  myPort = new Serial(this, Serial.list()[2], 9600);
   // only generate a serial event when you get a newline: 
   myPort.bufferUntil('\n');
   SurfBoard = loadShape("SurfBoard.obj");
+  surf_music.loop();
   //SurfBoard = loadShape("customboard.obj");
   //SurfBoard = loadShape("smallboard.obj");
 } 
@@ -57,8 +92,35 @@ void draw() {
   case 0: //Waiting for player to stand over board
     animation0.display(0, 0);
     if (feetsensor==1) {
-      play();
-      state=1;
+      
+      if(first_time) {
+        start_time = millis();
+        print("first press");
+        first_time = false;
+      }
+      
+      countdown = millis();
+      
+      //t = interval-(int(start_time/1000));
+      
+      //timeA = nf(t , 2);
+      
+      if(((start_time - countdown) <  1000)){ // && count_index < 2 ){
+            print("Inside countdown");
+             text(countdown_string[count_index], width/2.3, height/1.8);
+             count_index++;
+      }
+      else if(count_index > 2){
+        text("GO", width/2.3, height/1.8);
+        delay(500);
+        nextTime=true;
+        lastTime=millis();
+     
+       //play();
+        first_time = true;
+        play();
+        state=1;
+      }
     } else {
       start_screen();
     }
@@ -92,6 +154,7 @@ void draw() {
 }
 
 void start_screen() {
+   
   start_text = createFont("chalkboard", 100, true);
   textFont(start_text, 36);
   fill(0xFF000000);
@@ -122,7 +185,6 @@ void play() {
     //translate(width/2,8*height/10);
     textAlign(CENTER);
     fill(0xFFFF0000);
-    text(nailed_it_strings[i], width/2, 8*height/10);
 
     if (!printed_text) {
       i++;
@@ -130,6 +192,7 @@ void play() {
         i = 0;
     }
     printed_text = true;
+    text(nailed_it_strings[i], width/2, 8*height/10);
   }
 }
 
@@ -210,6 +273,26 @@ void drawboard() {
     new_target = true;
     nailed_it = true;
     printed_text = false;
+    ding.play();
+    if(sound == 0)
+      wack.play();
+      else if(sound == 1)
+        so_pitted.play();
+              else if(sound == 2)
+                bro.play();
+                else if(sound == 3)
+                  whoo.play();
+                  else if(sound == 4)
+                    so_sick.play();
+    sound++;
+    if(sound > sound_length)
+      sound = 0;
+    /*
+    nailed_it_sound[sound].play();
+    sound++;
+    if(sound > nailed_it_sound.length)
+      sound = 0;
+      */
   }
 }
 
