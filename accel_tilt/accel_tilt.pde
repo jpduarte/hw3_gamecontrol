@@ -1,5 +1,7 @@
 import processing.sound.*;
 
+
+
 //Graphic variables
 PGraphics boardaux;
 Animation animation0,animation1, animation2,animation3;
@@ -41,6 +43,14 @@ SoundFile wack, so_pitted, bro, whoo, so_sick;
 int sound_length = 4;
 int sound = 0;
 
+//average
+int angle_count = 0;
+int samples = 10;
+float[] pitch_array = new float[10];
+float[] roll_array = new float[10];
+float total_roll = 0;
+float total_pitch = 0;
+
 
 void setup() {
   size(736, 552, P3D); 
@@ -53,7 +63,7 @@ void setup() {
 
   boardaux = createGraphics(width, height, P3D);
 
-  myPort = new Serial(this, Serial.list()[0], 9600);
+  myPort = new Serial(this, Serial.list()[1], 9600);
   // only generate a serial event when you get a newline: 
   myPort.bufferUntil('\n');
   SurfBoard = loadShape("SurfBoard.obj");
@@ -76,7 +86,24 @@ void setup() {
 } 
 
 void draw() {
-  vector_player.set(pitch,roll);
+  
+  //average
+  if(angle_count > samples-1)
+    angle_count = 0;
+  pitch_array[angle_count] = pitch;
+  roll_array[angle_count] = roll;
+  
+  angle_count++;
+  
+  for(int average_count = 0; average_count < samples; average_count++) {
+    total_pitch += pitch_array[average_count];
+    total_roll += roll_array[average_count];
+  }
+  
+  
+  vector_player.set(total_pitch/samples,total_roll/samples);
+  total_pitch = 0;
+  total_roll = 0;
   //background(wave);
   //state machine for the game
   switch(state) {
