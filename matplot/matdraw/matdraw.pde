@@ -55,30 +55,30 @@ void setup() {
 
 void draw() {
     //println
-    //translate(width/4, 100);
+    translate(width/4, height/4);
     rotateX(0.5);
     //rotateX(PI/10);
     background(0);
      
     if (render==1){
-      println("Printing");
+      //println("Printing");
     int index=0;
     //loop row first
     for (int rowcount = 0;rowcount<8;rowcount++) {
        //then loop columns
        for (int columncount = 0;columncount<12;columncount++) {
-        vertices[columncount][rowcount].z=serialInArray[index]/40; 
+        vertices[columncount][rowcount].z=serialInArray[index]/40;//+= (serialInArray[index]/40-vertices[columncount][rowcount].z)*ease; 
         index=index+1;
        }
     } 
     
    for (int j=0; j<7; j++) {
       beginShape(QUAD_STRIP);
-      for (int i=0; i<11; i++) {
+      for (int i=0; i<12; i++) {
           stroke(255);
-          float colorfill = ((vertices[i][j].z+vertices[i][j+1].z+ vertices[i+1][j].z+vertices[i+1][j+1].z)*255.0/4095.0)/4.0;
+          float colorfill =  (vertices[i][j].z)*255.0*40.0/4095.0;//((vertices[i][j].z+vertices[i][j+1].z+ vertices[i+1][j].z+vertices[i+1][j+1].z)*255.0*40/4095.0)/4.0;
           fill(colorfill, 0, 0);
-          println(colorfill);
+          //println(colorfill);
           //+= (verticesTZ[i]-vertices[i][j].z)*ease;
           vertex( vertices[i][j].x, vertices[i][j].y, vertices[i][j].z);
           vertex( vertices[i][j+1].x, vertices[i][j+1].y, vertices[i][j+1].z);
