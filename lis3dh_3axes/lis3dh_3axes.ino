@@ -32,10 +32,10 @@ int row2 = D4;
 //byte rwo[] = {D2,D3,D4};
 
 //column control
-int column0 = D9;
-int column1 = D10;
-int column2 = D11;
-int column3 = D12;
+int column0 = D10;
+int column1 = D11;
+int column2 = D12;
+int column3 = D13;
 
 typedef struct ACCEL_DATA {
   float xG, yG, zG;
@@ -113,72 +113,73 @@ void set_column(int column) {
       digitalWrite(column0,LOW);
       digitalWrite(column1,LOW);
       digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;
     case 1:
       digitalWrite(column0,HIGH);
       digitalWrite(column1,LOW);
       digitalWrite(column2,LOW);
-      digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;
     case 2:
       digitalWrite(column0,LOW);
       digitalWrite(column1,HIGH);
       digitalWrite(column2,LOW);
-      digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;
     case 3:
       digitalWrite(column0,HIGH);
       digitalWrite(column1,HIGH);
       digitalWrite(column2,LOW);
-      digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;
     case 4:
       digitalWrite(column0,LOW);
       digitalWrite(column1,LOW);
       digitalWrite(column2,HIGH);
-      digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;
     case 5:
       digitalWrite(column0,HIGH);
       digitalWrite(column1,LOW);
       digitalWrite(column2,HIGH);
-      digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;
     case 6:
       digitalWrite(column0,LOW);
       digitalWrite(column1,HIGH);
       digitalWrite(column2,HIGH);
-      digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;
     case 7:
       digitalWrite(column0,HIGH);
       digitalWrite(column1,HIGH);
       digitalWrite(column2,HIGH);
-      digitalWrite(column2,LOW);
+      digitalWrite(column3,LOW);
       break;      
     case 8:
       digitalWrite(column0,LOW);
       digitalWrite(column1,LOW);
       digitalWrite(column2,LOW);
-      digitalWrite(column2,HIGH);
+      digitalWrite(column3,HIGH);
       break;
     case 9:
       digitalWrite(column0,HIGH);
       digitalWrite(column1,LOW);
       digitalWrite(column2,LOW);
-      digitalWrite(column2,HIGH);
+      digitalWrite(column3,HIGH);
       break;
     case 10:
       digitalWrite(column0,LOW);
       digitalWrite(column1,HIGH);
       digitalWrite(column2,LOW);
-      digitalWrite(column2,HIGH);
+      digitalWrite(column3,HIGH);
       break;
     case 11:
       digitalWrite(column0,HIGH);
       digitalWrite(column1,HIGH);
       digitalWrite(column2,LOW);
-      digitalWrite(column2,HIGH);
+      digitalWrite(column3,HIGH);
       break;       
   }
 }
