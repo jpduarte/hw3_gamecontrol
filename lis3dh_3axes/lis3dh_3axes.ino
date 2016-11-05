@@ -20,10 +20,10 @@ SYSTEM_MODE(MANUAL);
 #define vcc 3.3;
 
 //values from mat matrix
-float mat_values[96];
+int mat_values[96];
 
 //analog input
-int analog_read = A0;
+int analog_read = A1;
 
 //rows control
 int row0 = D2;
@@ -75,7 +75,7 @@ void loop() {
 }
 void MAT_sendData(void) {
   for (int index = 0;index<96;index++) {
-     Serial.printf("%f,",mat_values[index]);  
+     Serial.printf("%i,",mat_values[index]);  
   }  
 }
 
@@ -93,13 +93,14 @@ void get_mat_values(void){
 
   int index=0;
   //loop row first
-  for (int rowcount = 0;rowcount<3;rowcount++) {
+  for (int rowcount = 0;rowcount<8;rowcount++) {
      set_row(rowcount);
      //then loop columns
      for (int columncount = 0;columncount<12;columncount++) {
       set_column(columncount);
-      //save value at each point of mat
-      mat_values[index]=read_mat();
+      //save value at each point of mat, just read and save integer value
+      mat_values[index]=analogRead(analog_read); //read_mat();
+      //Serial.printf("rowcount: %i, columncount: %i, index: %i, value: %i \n",rowcount,columncount,index,mat_values[index]);
       index=index+1;
      }
   }
