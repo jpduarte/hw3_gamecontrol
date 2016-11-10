@@ -27,6 +27,9 @@ int dif=0;
 //
 float pitch=0, roll=0; 
 int feetsensor=0;  
+float timemili;
+  
+PrintWriter output;
 
 void setup() {
   size(960, 600, OPENGL);  // Stage size
@@ -43,6 +46,7 @@ void setup() {
             vertices[i][j] = new PVector( i*w, j*w, 0);
         }
     }  
+  output = createWriter("5pushups.txt"); 
   
 }
 
@@ -51,6 +55,7 @@ void draw() {
     //
     rotateX(3.15*6.0/5.0);
     rotateY(3.15);
+    //rotateZ(3.15);
 
     translate(-width/1.3, -height/1.3);
     //rotateX(PI/10);
@@ -83,18 +88,28 @@ void serialEvent(Serial myPort) {
     feetsensor = int(items[2]);
     int index=3;
     //loop row first
+    timemili = millis();
+    output.print(timemili);
+    output.print(",");
     for (int rowcount = 0;rowcount<8;rowcount++) {
        //then loop columns
-       println(rowcount);
        for (int columncount = 0;columncount<12;columncount++) {
         //serialInArray[index-3]=int(items[index]); 
         vertices[columncount][rowcount].z=int(items[index]);
         //vertices[rowcount][columncount].z=int(items[index])/40; 
-        print(vertices[columncount][rowcount].z);
-        print(",");
+        output.print(vertices[columncount][rowcount].z);
+        output.print(",");
         index=index+1;
         } 
-        print("\n");
+        
     }
+    output.print("\n");
+    
   }
+}
+
+void keyPressed() {
+  output.flush();  // Writes the remaining data to the file
+  output.close();  // Finishes the file
+  exit();  // Stops the program
 }
