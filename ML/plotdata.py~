@@ -40,7 +40,6 @@ while (i<totalplot):
   i=i+1
 
 
-
 plt.show()
 
 
