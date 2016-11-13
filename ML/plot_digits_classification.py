@@ -21,6 +21,7 @@ import numpy as np
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 
+
 # The digits dataset
 digits = datasets.load_digits()
 
