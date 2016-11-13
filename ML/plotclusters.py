@@ -34,8 +34,8 @@ y = np.tile(np.arange(12),8)
 time = datalist[:,0]
 
 i=1
-totalplot=10
-threshold=1000
+totalplot=5
+threshold=100
 k=2
 while (i<totalplot):
   z = (datalist[(i-1)*int(len(time)/totalplot),1:])
@@ -68,18 +68,21 @@ while (i<totalplot):
     centroids[:,0] = centroids[:,0]*(-minX+maxX)+minX
     centroids[:,1] = centroids[:,1]*(-minY+maxY)+minY '''
     
-    kmeans = KMeans(n_clusters=2,precompute_distances=True).fit(alldata)
+    kmeans = KMeans(n_clusters=k,precompute_distances=True).fit(alldata)
     centroids = kmeans.cluster_centers_
     labels = kmeans.labels_  
     print(centroids)
     print(labels)
     ax.scatter(xaux, yaux, zaux,c=labels.astype(np.float))
     ax.scatter(centroids[:,0], centroids[:,1], [1000,1000],marker='s', s=400)
+    ax.set_xlim([0,8])
+    ax.set_ylim([0,12])
+    ax.set_zlim([0,2000])
   
   i=i+1
 
 
-
+#np.poly1d(np.polyfit(x, y, 1)
 
 
 
