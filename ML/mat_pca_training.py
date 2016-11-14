@@ -104,8 +104,8 @@ def selecttraindata(time,data,bounds):
 
 ###################################################################################################################################    load data
 
-#pathandfile = '../../matplot/matdraw/feetcheck.txt'
-pathandfile = '../../matplot/matdraw/feettrain.txt'
+#pathandfile = '../matplot/matdraw/feetcheck.txt'
+pathandfile = '../matplot/matdraw/feettrain.txt'
 target = open( pathandfile, 'r') 
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
 target.close()
