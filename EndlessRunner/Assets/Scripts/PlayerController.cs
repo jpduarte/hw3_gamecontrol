@@ -20,21 +20,25 @@ public class PlayerController : MonoBehaviour {
 	private bool isIdleToPushUp = false;
 	private bool isPushUpToIdle = false;
 	private bool isPushUp = false;
+	private float timeStart = 0.0f;
 	
 
 	public float vSpeed = 0.5f;
-	public float hSpeed = 2.5f;
+	public float hSpeed = 5.0f;
 	public float verticalVelocity = 0.0f;
 	public float gravity = 12.0f;
 	public Text pushUpText;
+	public CameraController cameraController;
 
 	// Use this for initialization
 	void Start () {
 
 		//Get Character Controller Component
+		//cameraController = GetComponent<CameraController> ();
 		controller = GetComponent<CharacterController> ();
 		anim = GetComponent<Animator> ();
 		pushUpText.text = "";
+		timeStart = Time.time;
 
 	}
 	
@@ -53,7 +57,7 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		// Just go straight during beginning camera animation
-		if (Time.time < animationDuration) {
+		if ((Time.time - timeStart) < animationDuration) {
 
 			controller.Move (Vector3.forward * vSpeed * Time.deltaTime);
 			return;
@@ -101,12 +105,12 @@ public class PlayerController : MonoBehaviour {
 
 
 		//Check to see if player is grounded to add gravity
-		/*
+
 		if (controller.isGrounded) {
 			verticalVelocity = 0f;
 		} else {
 			verticalVelocity -= gravity * Time.deltaTime;
-		}*/
+		}
 
 		// X - Left and Right
 		moveVector.x = moveHorizontal * hSpeed;
@@ -209,5 +213,6 @@ public class PlayerController : MonoBehaviour {
 		//print ("Dead!");
 		isDead = true;
 		GetComponent<ScoreController> ().onDeath ();
+		cameraController.onDeath ();
 	}
 }

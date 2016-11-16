@@ -49,7 +49,10 @@ public class ScoreController : MonoBehaviour {
 	}
 
 	public void onDeath() {
+		
 		isDead = true;
+		if (score > PlayerPrefs.GetFloat ("HighScore"))
+			PlayerPrefs.SetFloat ("HighScore", score);
 		deathMenu.ToggleEndMenu (score);
 	}
 }

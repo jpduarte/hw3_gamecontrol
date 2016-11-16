@@ -29,7 +29,6 @@ public class CameraController : MonoBehaviour {
 		// Get the new position of the player and add the camera offset
 		moveVector = playerTransform.position + startOffset;
 
-
 		// X Don't change X
 		moveVector.x = 0;
 
@@ -54,5 +53,9 @@ public class CameraController : MonoBehaviour {
 			transform.LookAt (playerTransform.position + Vector3.up);
 		}
 			
+	}
+
+	public void onDeath() {
+		transition = 0.0f;
 	}
 }
