@@ -21,6 +21,9 @@ public class PlayerController : MonoBehaviour {
 	private bool isPushUpToIdle = false;
 	private bool isPushUp = false;
 	private float timeStart = 0.0f;
+	private Transform hips;
+	private Behaviour halo;
+	private float powerUpStartTime = 0.0f;
 	
 
 	public float vSpeed = 0.5f;
@@ -29,9 +32,19 @@ public class PlayerController : MonoBehaviour {
 	public float gravity = 12.0f;
 	public Text pushUpText;
 	public CameraController cameraController;
+	public float powerUpTimeLimit = 10.0f;
+
+	private bool activeMagnet = false;
+
 
 	// Use this for initialization
 	void Start () {
+
+		hips = transform.FindChild ("Boy:Hips");
+
+		halo = (Behaviour)hips.GetComponent ("Halo");
+			//(Behaviour)GetComponent("Halo");
+		halo.enabled = false;
 
 		//Get Character Controller Component
 		//cameraController = GetComponent<CameraController> ();
@@ -63,7 +76,10 @@ public class PlayerController : MonoBehaviour {
 			return;
 		}
 
-
+		if ((Time.time - powerUpStartTime) > powerUpTimeLimit) {
+			activeMagnet = false;
+			halo.enabled = false;
+		}
 
 		if (isIdleToPushUp) {
 
@@ -143,12 +159,17 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	private void OnControllerColliderHit(ControllerColliderHit hit) {
-		print ("Hit Tag: " + hit.gameObject.tag);
+		///print ("Hit Tag: " + hit.gameObject.tag);
 
 		//If player hits a hazard, he dies
 		if (hit.gameObject.tag == "Hazard") {
 			//print ("Hit Point: " + hit.point.z);
 			Death ();
+		}
+
+		if (hit.gameObject.tag == "Magnet") {
+			MagnetPowerUp ();
+			Destroy(hit.gameObject);
 		}
 
 		//if player hits a token he scores a point
@@ -157,6 +178,7 @@ public class PlayerController : MonoBehaviour {
 			//int deletedTokenIndex = GetComponent<PlatformController> ().GetTokenListIndex (hit.gameObject);
 			Destroy (hit.gameObject);
 			//GetComponent<PlatformController> ().UpdateTokenList (deletedTokenIndex);
+			print("hit");
 		}
 			
 
@@ -181,7 +203,7 @@ public class PlayerController : MonoBehaviour {
 		isIdleToPushUp = false;
 		isPushUp = false;
 		isPushUpToIdle = false;
-		float offCenter = transform.localEulerAngles.y;
+		//float offCenter = transform.localEulerAngles.y;
 		pushUpText.text = "Good Job!";
 		transform.rotation = Quaternion.identity;
 		timeFinishPushUp = Time.time;
@@ -207,6 +229,16 @@ public class PlayerController : MonoBehaviour {
 		
 	public float GetScore() {
 		return score;
+	}
+
+	private void MagnetPowerUp() {
+		halo.enabled = true;
+		activeMagnet = true;
+		powerUpStartTime = Time.time;
+	}
+
+	public bool GetMagnetStatus() {
+		return activeMagnet;
 	}
 
 	private void Death() {

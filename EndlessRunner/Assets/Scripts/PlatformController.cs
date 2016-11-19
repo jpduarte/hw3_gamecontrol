@@ -6,6 +6,7 @@ public class PlatformController : MonoBehaviour {
 
 	public GameObject[] platformPrefabs;
 	public GameObject tokenPrefab;
+	public GameObject magnetPowerUpPrefab;
 	public int nPlatformsOnScreen = 7;
 	public int nTokenSpawn = 4;
 	public float tokenSpacing = 2.0f;
@@ -19,11 +20,15 @@ public class PlatformController : MonoBehaviour {
 
 	private List<GameObject> activePlatforms;
 	private List<GameObject> activeTokens;
+	GameObject magnetPowerUp;
 
 	private float tokenBound = 0;
 
 
 	private int lastPrefabIndex = 0;
+
+	private bool activeMagnet = false;
+	private bool magnetTurn = false;
 
 
 	// Use this for initialization
@@ -57,11 +62,18 @@ public class PlatformController : MonoBehaviour {
 		if (playerTransform.position.z - safeZone > (spawnZ - nPlatformsOnScreen * platformLength)) {
 			//1 in 4 chance of spawning tokens
 			SpawnPlatform ();
-			if (Random.Range (1, 4) == 1) {
+			//Only 1 out of ten chance of getting a magnet powerup
+			// and only when there isn't already a magnet powerup out there
+			if (Random.Range (1, 4) == 1 && (!activeMagnet || magnetPowerUp == null)) {
+				SpawnMagnetPowerUp ();
+				magnetTurn = true;
+			}
+			if (Random.Range (1, 4) == 1 && !magnetTurn) {
 				SpawnToken ();
 			}
 			DeletePlatform ();
 
+			magnetTurn = false;
 		}
 		//Check if token was already removed and if it was delete it from list
 		int nullToken = activeTokens.FindIndex (tokenSearch => tokenSearch == null);
@@ -76,6 +88,16 @@ public class PlatformController : MonoBehaviour {
 			//print ("Last Token Position: " + activeTokens [activeTokenIndex].transform.position.z);
 			DeleteToken (activeTokenIndex);
 		}
+			
+		if (magnetPowerUp != null) {
+			//Remove Token if player has passed it
+			if (magnetPowerUp.transform.position.z < playerTransform.position.z - safeZone) {
+				//print ("Last Token Position: " + activeTokens [activeTokenIndex].transform.position.z);
+				Destroy(magnetPowerUp);
+				activeMagnet = false;
+			}
+		}
+
 
 
 	}
@@ -144,10 +166,25 @@ public class PlatformController : MonoBehaviour {
 		}
 	}
 
+	private void SpawnMagnetPowerUp () {
+
+
+		float tokenX = ((Random.value * (tokenBound - 0.5f) * ((Random.Range (0, 2) * 2) - 1)));
+
+		// Spawn Magnet PowerUp
+		magnetPowerUp = Instantiate (magnetPowerUpPrefab) as GameObject;
+		magnetPowerUp.transform.SetParent (transform);
+		magnetPowerUp.transform.position = new Vector3 (tokenX, 1.0f, (spawnZ - platformLength/2) );
+
+		activeMagnet = true;
+	}
+
 	private void TokenCleanup (int nullToken) {
 		activeTokens.RemoveAt (nullToken);
 
 	}
+
+
 
 	private void DeleteToken(int activeTokenIndex) {
 
