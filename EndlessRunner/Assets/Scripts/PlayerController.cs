@@ -30,8 +30,11 @@ public class PlayerController : MonoBehaviour {
 	public Text pushUpText;
 	public CameraController cameraController;
 
-	// Use this for initialization
-	void Start () {
+    //define Input Controller class
+    InputController _inputController;
+
+    // Use this for initialization
+    void Start () {
 
 		//Get Character Controller Component
 		//cameraController = GetComponent<CameraController> ();
@@ -40,7 +43,12 @@ public class PlayerController : MonoBehaviour {
 		pushUpText.text = "";
 		timeStart = Time.time;
 
-	}
+        print("starting connection");
+        //wifi connection to controller
+        _inputController = new InputController();
+        _inputController.Begin("192.168.2.12", 23);
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -50,14 +58,22 @@ public class PlayerController : MonoBehaviour {
 		if (((timeAfterPushup - timeFinishPushUp) > 1.0f) && !isIdleToPushUp) {
 			pushUpText.text = "";
 		}
+        if (_inputController.connection_status)
+        {
+            print(_inputController.stringtoprint);
+            string[] move = _inputController.stringtoprint.Split(',');
+        }
 
-		//If Dead player doesn't do anything
-		if(isDead){
-			return;
+
+        //If Dead player doesn't do anything
+        if (isDead){
+            _inputController.connection_status = false;
+            return;
 		}
 
-		// Just go straight during beginning camera animation
-		if ((Time.time - timeStart) < animationDuration) {
+
+        // Just go straight during beginning camera animation
+        if ((Time.time - timeStart) < animationDuration) {
 
 			controller.Move (Vector3.forward * vSpeed * Time.deltaTime);
 			return;
@@ -83,12 +99,16 @@ public class PlayerController : MonoBehaviour {
 		}
 
 
-		//Get inputs here
-		float animateHorizontal = Input.GetAxis ("Horizontal");
-		float moveHorizontal = Input.GetAxisRaw ("Horizontal");
+        //Get inputs here
+        float animateHorizontal = Input.GetAxis ("Horizontal");
+        float moveHorizontal = Input.GetAxisRaw ("Horizontal");
 
-		//Move the player
-		Move (moveHorizontal);
+        //float animateHorizontal = float.Parse(move[0]);
+        //float moveHorizontal = float.Parse(move[0]);
+
+
+        //Move the player
+        Move (moveHorizontal);
 
 		//Talk to animator controller
 		Animate (animateHorizontal,isIdleToPushUp,isPushUp,isPushUpToIdle);
@@ -104,9 +124,9 @@ public class PlayerController : MonoBehaviour {
 		moveVector = Vector3.zero;
 
 
-		//Check to see if player is grounded to add gravity
+        //Check to see if player is grounded to add gravity
 
-		if (controller.isGrounded) {
+        if (controller.isGrounded) {
 			verticalVelocity = 0f;
 		} else {
 			verticalVelocity -= gravity * Time.deltaTime;
@@ -114,11 +134,13 @@ public class PlayerController : MonoBehaviour {
 
 		// X - Left and Right
 		moveVector.x = moveHorizontal * hSpeed;
+        print("x velocity:");
+        print(moveVector.x);
 
-		//print ("Horizontal Movement: " + moveVector.x);
+        //print ("Horizontal Movement: " + moveVector.x);
 
-		// Y - Up and Down
-		moveVector.y = verticalVelocity;
+        // Y - Up and Down
+        moveVector.y = verticalVelocity;
 
 		// Z - Forward and Backward
 		moveVector.z = 1.0f * vSpeed;
