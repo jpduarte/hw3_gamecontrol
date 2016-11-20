@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour {
 	
 
 	public float vSpeed = 0.5f;
-	public float hSpeed = 5.0f;
+    public float hSpeed = 0.0002f;//5.0f;
 	public float verticalVelocity = 0.0f;
 	public float gravity = 12.0f;
 	public Text pushUpText;
@@ -58,11 +58,6 @@ public class PlayerController : MonoBehaviour {
 		if (((timeAfterPushup - timeFinishPushUp) > 1.0f) && !isIdleToPushUp) {
 			pushUpText.text = "";
 		}
-        if (_inputController.connection_status)
-        {
-            print(_inputController.stringtoprint);
-            string[] move = _inputController.stringtoprint.Split(',');
-        }
 
 
         //If Dead player doesn't do anything
@@ -100,11 +95,27 @@ public class PlayerController : MonoBehaviour {
 
 
         //Get inputs here
-        float animateHorizontal = Input.GetAxis ("Horizontal");
-        float moveHorizontal = Input.GetAxisRaw ("Horizontal");
+        float animateHorizontal;
+        float moveHorizontal;
 
-        //float animateHorizontal = float.Parse(move[0]);
-        //float moveHorizontal = float.Parse(move[0]);
+        if (_inputController.connection_status)
+        {
+            print(_inputController.stringtoprint);
+            string[] move = _inputController.stringtoprint.Split(',');
+            animateHorizontal = float.Parse(move[0]);
+            moveHorizontal = float.Parse(move[0]);
+        } else
+        {
+            animateHorizontal = Input.GetAxis("Horizontal");
+            moveHorizontal = Input.GetAxisRaw("Horizontal");
+        }
+        
+        /* else
+        {
+            float animateHorizontal = Input.GetAxis("Horizontal");
+            float moveHorizontal = Input.GetAxisRaw("Horizontal");
+        }*/
+        
 
 
         //Move the player

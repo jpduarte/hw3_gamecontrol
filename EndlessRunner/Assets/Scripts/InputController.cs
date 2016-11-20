@@ -9,7 +9,7 @@ public class InputController
 {
 	public float CurrentValue;
 	public string stringtoprint;
-    public bool connection_status =true;//this is a flag to shut down the client in case we change of scene
+    public bool connection_status =false;//this is a flag to shut down the client in case we change of scene
     
     public void Begin(string ipAddress, int port)
 	{
@@ -26,6 +26,11 @@ public class InputController
 				// Change this to your devices real address
 				client.Connect(ipAddress, port);
 				var stream = new StreamReader(client.GetStream());
+                
+                if (client.Connected)
+                {
+                    connection_status = true;
+                }
 
                 // We'll read values and buffer them up in here
                 //connection_status = 'listenning';
