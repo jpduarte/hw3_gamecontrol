@@ -21,10 +21,9 @@ public class PlayerController : MonoBehaviour {
 	private bool isPushUpToIdle = false;
 	private bool isPushUp = false;
 	private float timeStart = 0.0f;
-	private Transform hips;
-	private Behaviour halo;
-	private float powerUpStartTime = 0.0f;
-	
+	//private Transform hips;
+	private Light powerUpLight;
+
 
 	public float vSpeed = 0.5f;
 	public float hSpeed = 5.0f;
@@ -32,19 +31,23 @@ public class PlayerController : MonoBehaviour {
 	public float gravity = 12.0f;
 	public Text pushUpText;
 	public CameraController cameraController;
+	public ScoreController scoreController;
 	public float powerUpTimeLimit = 10.0f;
 
 	private bool activeMagnet = false;
+	private bool activeStar = false;
+
+	//define Input Controller class
+	public InputController _inputController;
 
 
 	// Use this for initialization
 	void Start () {
 
-		hips = transform.FindChild ("Boy:Hips");
+		powerUpLight = transform.FindChild ("PowerUpLight").GetComponent<Light>();
 
-		halo = (Behaviour)hips.GetComponent ("Halo");
 			//(Behaviour)GetComponent("Halo");
-		halo.enabled = false;
+		powerUpLight.enabled = false;
 
 		//Get Character Controller Component
 		//cameraController = GetComponent<CameraController> ();
@@ -52,6 +55,9 @@ public class PlayerController : MonoBehaviour {
 		anim = GetComponent<Animator> ();
 		pushUpText.text = "";
 		timeStart = Time.time;
+
+		_inputController = new InputController();
+		_inputController.Begin("172.20.10.11", 23);
 
 	}
 	
@@ -66,6 +72,7 @@ public class PlayerController : MonoBehaviour {
 
 		//If Dead player doesn't do anything
 		if(isDead){
+			_inputController.connection_status = false;
 			return;
 		}
 
@@ -76,9 +83,16 @@ public class PlayerController : MonoBehaviour {
 			return;
 		}
 
-		if ((Time.time - powerUpStartTime) > powerUpTimeLimit) {
-			activeMagnet = false;
-			halo.enabled = false;
+		if (activeMagnet || activeStar) {
+			powerUpLight.enabled = true;
+			if (activeMagnet) {
+				powerUpLight.color = Color.red;
+			}
+			if (activeStar) {
+				powerUpLight.color = Color.blue;
+			}
+		} else {
+			powerUpLight.enabled = false;
 		}
 
 		if (isIdleToPushUp) {
@@ -99,9 +113,27 @@ public class PlayerController : MonoBehaviour {
 		}
 
 
+		float animateHorizontal;
+		float moveHorizontal;
+
+		if (_inputController.connection_status)
+		{
+			print(_inputController.stringtoprint);
+			string[] move = _inputController.stringtoprint.Split(',');
+			animateHorizontal = float.Parse(move[0]);
+			moveHorizontal = float.Parse(move[0]);
+		} else
+		{
+			animateHorizontal = Input.GetAxis("Horizontal");
+			moveHorizontal = Input.GetAxisRaw("Horizontal");
+		}
+
 		//Get inputs here
+		/*
 		float animateHorizontal = Input.GetAxis ("Horizontal");
 		float moveHorizontal = Input.GetAxisRaw ("Horizontal");
+		*/
+
 
 		//Move the player
 		Move (moveHorizontal);
@@ -122,7 +154,7 @@ public class PlayerController : MonoBehaviour {
 
 		//Check to see if player is grounded to add gravity
 
-		if (controller.isGrounded) {
+		if (controller.isGrounded || activeStar) {
 			verticalVelocity = 0f;
 		} else {
 			verticalVelocity -= gravity * Time.deltaTime;
@@ -162,23 +194,23 @@ public class PlayerController : MonoBehaviour {
 		///print ("Hit Tag: " + hit.gameObject.tag);
 
 		//If player hits a hazard, he dies
-		if (hit.gameObject.tag == "Hazard") {
+		if (hit.gameObject.tag == "Hazard" && !activeStar) {
 			//print ("Hit Point: " + hit.point.z);
 			Death ();
 		}
 
 		if (hit.gameObject.tag == "Magnet") {
-			MagnetPowerUp ();
-			Destroy(hit.gameObject);
+			//MagnetPowerUp ();
+			//Destroy(hit.gameObject);
 		}
 
 		//if player hits a token he scores a point
 		if (hit.gameObject.tag == "Token") {
-			score += 1;
+			//score += 1;
 			//int deletedTokenIndex = GetComponent<PlatformController> ().GetTokenListIndex (hit.gameObject);
-			Destroy (hit.gameObject);
+			//Destroy (hit.gameObject);
 			//GetComponent<PlatformController> ().UpdateTokenList (deletedTokenIndex);
-			print("hit");
+			//print("hit");
 		}
 			
 
@@ -231,20 +263,24 @@ public class PlayerController : MonoBehaviour {
 		return score;
 	}
 
-	private void MagnetPowerUp() {
-		halo.enabled = true;
-		activeMagnet = true;
-		powerUpStartTime = Time.time;
+	public void MagnetPowerUp(bool getMagnet) {
+		activeMagnet = getMagnet;
+	}
+
+	public void StarPowerUp(bool getStar) {
+		activeStar = getStar;
 	}
 
 	public bool GetMagnetStatus() {
 		return activeMagnet;
 	}
 
+
+
 	private void Death() {
 		//print ("Dead!");
 		isDead = true;
-		GetComponent<ScoreController> ().onDeath ();
+		scoreController.onDeath ();
 		cameraController.onDeath ();
 	}
 }

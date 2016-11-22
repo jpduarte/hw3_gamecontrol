@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class PlatformController : MonoBehaviour {
 
 	public GameObject[] platformPrefabs;
 	public GameObject tokenPrefab;
 	public GameObject magnetPowerUpPrefab;
+	public GameObject starPowerUpPrefab;
+	public GameObject player;
 	public int nPlatformsOnScreen = 7;
 	public int nTokenSpawn = 4;
 	public float tokenSpacing = 2.0f;
@@ -20,16 +23,27 @@ public class PlatformController : MonoBehaviour {
 
 	private List<GameObject> activePlatforms;
 	private List<GameObject> activeTokens;
-	GameObject magnetPowerUp;
+	public GameObject magnetPowerUp;
+	public GameObject starPowerUp;
 
 	private float tokenBound = 0;
+	private float score = 0.0f;
 
 
 	private int lastPrefabIndex = 0;
 
 	private bool activeMagnet = false;
-	private bool magnetTurn = false;
+	private bool magnetSpawned = false;
+	private float TokenSpeed = 8.0f;
 
+	private bool activeStar = false;
+	private bool starSpawned = false;
+
+	private float powerUpStartTime = 0.0f;
+	private float powerUpTimeLimit = 10.0f;
+
+
+	private PlayerController playerController;
 
 	// Use this for initialization
 	private void Start () {
@@ -40,7 +54,9 @@ public class PlatformController : MonoBehaviour {
 		activeTokens = new List<GameObject>();
 
 		//Find the player's transform
-		playerTransform = GameObject.FindGameObjectWithTag ("Player").transform;
+		playerTransform = player.transform;
+		playerController = player.GetComponent<PlayerController> ();
+
 
 		//Spawn the beginning platforms and tokens
 		for(int i = 0; i < nPlatformsOnScreen; i++) {
@@ -62,24 +78,41 @@ public class PlatformController : MonoBehaviour {
 		if (playerTransform.position.z - safeZone > (spawnZ - nPlatformsOnScreen * platformLength)) {
 			//1 in 4 chance of spawning tokens
 			SpawnPlatform ();
-			//Only 1 out of ten chance of getting a magnet powerup
-			// and only when there isn't already a magnet powerup out there
-			if (Random.Range (1, 4) == 1 && (!activeMagnet || magnetPowerUp == null)) {
-				SpawnMagnetPowerUp ();
-				magnetTurn = true;
-			}
-			if (Random.Range (1, 4) == 1 && !magnetTurn) {
+
+			if (Random.Range (1, 4) == 1) {
 				SpawnToken ();
 			}
 			DeletePlatform ();
-
-			magnetTurn = false;
 		}
+
+
+		if (activeMagnet) {
+			TokenMagnetActive ();
+		}
+
+		if ((Time.time - powerUpStartTime) > powerUpTimeLimit) {
+			activeMagnet = false;
+			activeStar = false;
+			playerController.MagnetPowerUp (activeMagnet);
+			playerController.StarPowerUp (activeStar);
+		}
+
+		TokenCollision ();
+		if (magnetSpawned) {
+			MagnetCollision ();
+		}
+		if (starSpawned) {
+			StarCollision ();
+		}
+
+
+
+		/*
 		//Check if token was already removed and if it was delete it from list
 		int nullToken = activeTokens.FindIndex (tokenSearch => tokenSearch == null);
 		if (nullToken > -1) {
 			TokenCleanup (nullToken);
-		}
+		} */
 
 		//Remove Token if player has passed it
 		int activeTokenIndex = activeTokens.FindIndex (tokenSearch => tokenSearch.transform.position.z < playerTransform.position.z - safeZone);
@@ -94,7 +127,16 @@ public class PlatformController : MonoBehaviour {
 			if (magnetPowerUp.transform.position.z < playerTransform.position.z - safeZone) {
 				//print ("Last Token Position: " + activeTokens [activeTokenIndex].transform.position.z);
 				Destroy(magnetPowerUp);
-				activeMagnet = false;
+				magnetSpawned = false;
+			}
+		}
+
+		if (starPowerUp != null) {
+			//Remove Token if player has passed it
+			if (starPowerUp.transform.position.z < playerTransform.position.z - safeZone) {
+				//print ("Last Token Position: " + activeTokens [activeTokenIndex].transform.position.z);
+				Destroy(starPowerUp);
+				starSpawned = false;
 			}
 		}
 
@@ -150,34 +192,91 @@ public class PlatformController : MonoBehaviour {
 		return randomIndex;
 	}
 
+	private void TokenCollision() {
+		//Remove Token if player has passed it
+		List<int> results = Enumerable.Range(0, activeTokens.Count) .Where(i => Vector3.Distance(activeTokens[i].transform.position, playerTransform.position) < 1.25f)
+			.ToList();
+		for (int i = 0; i < results.Count; i++) {
+			if (activeTokens [results[i]] != null) {
+				Destroy (activeTokens [results[i]]);
+				score++;
+			}
+			activeTokens.RemoveAt (results[i]);
+		}
+	}
+
+
+	private void TokenMagnetActive() {
+		Vector3 xzMagnet;
+
+		List<int> results = Enumerable.Range(0, activeTokens.Count) .Where(i => Vector3.Distance(activeTokens[i].transform.position, playerTransform.position) < 20.0f)
+			.ToList();
+		for (int i = 0; i < results.Count; i++) {
+			if (activeTokens[results[i]] != null) {
+				xzMagnet = Vector3.MoveTowards (activeTokens[results[i]].transform.position, playerTransform.position, Time.deltaTime * TokenSpeed);
+				activeTokens[results[i]].transform.position = new Vector3 (xzMagnet.x, activeTokens[results[i]].transform.position.y, xzMagnet.z);
+			}
+		}
+	}
+
+	private void MagnetCollision() {
+
+		if(Vector3.Distance(magnetPowerUp.transform.position, playerTransform.position) < 1.25f) {
+			Destroy (magnetPowerUp);
+			activeMagnet = true;
+			activeStar = false;
+			magnetSpawned = false;
+			powerUpStartTime = Time.time;
+			playerController.StarPowerUp (activeStar);
+			playerController.MagnetPowerUp (activeMagnet);
+		}
+	}
+
+	private void StarCollision() {
+
+		if(Vector3.Distance(starPowerUp.transform.position, playerTransform.position) < 1.25f) {
+			Destroy (starPowerUp);
+			activeStar = true;
+			activeMagnet = false;
+			starSpawned = false;
+			powerUpStartTime = Time.time;
+			playerController.StarPowerUp (activeStar);
+			playerController.MagnetPowerUp (activeMagnet);
+
+		}
+	}
+
 	private void SpawnToken () {
 		
 		GameObject token;
 		float tokenX = ((Random.value * (tokenBound - 0.5f) * ((Random.Range (0, 2) * 2) - 1)));
-		// Spawn n tokens each tokenSpacing away from each other
-		for (int i = 0; i < nTokenSpawn; i++) {
-			token = Instantiate (tokenPrefab) as GameObject;
-			token.transform.SetParent (transform);
-			//print ("p or n: " + (Random.Range (0, 2)));
-			token.transform.position = new Vector3 (tokenX, 1.0f, (spawnZ - platformLength) - i * tokenSpacing);
 
-			//spawnZ += platformLength;
-			activeTokens.Add (token);
+		if ((Random.Range (1, 4) == 1) && (magnetSpawned == false)) {
+			magnetPowerUp = Instantiate (magnetPowerUpPrefab) as GameObject;
+			magnetPowerUp.transform.SetParent (transform);
+			//print ("p or n: " + (Random.Range (0, 2)));
+			magnetPowerUp.transform.position = new Vector3 (tokenX, 1.0f, (spawnZ - 1.5f*platformLength));
+			magnetSpawned = true;
+		} else if ((Random.Range (1, 4) == 1) && (starSpawned == false)) {
+			starPowerUp = Instantiate (starPowerUpPrefab) as GameObject;
+			starPowerUp.transform.SetParent (transform);
+			//print ("p or n: " + (Random.Range (0, 2)));
+			starPowerUp.transform.position = new Vector3 (tokenX, 1.0f, (spawnZ - 1.5f*platformLength));
+			starSpawned = true;
+		} else {
+			// Spawn n tokens each tokenSpacing away from each other
+			for (int i = 0; i < nTokenSpawn; i++) {
+				token = Instantiate (tokenPrefab) as GameObject;
+				token.transform.SetParent (transform);
+				//print ("p or n: " + (Random.Range (0, 2)));
+				token.transform.position = new Vector3 (tokenX, 1.0f, (spawnZ - platformLength) - i * tokenSpacing);
+
+				//spawnZ += platformLength;
+				activeTokens.Add (token);
+			}
 		}
 	}
-
-	private void SpawnMagnetPowerUp () {
-
-
-		float tokenX = ((Random.value * (tokenBound - 0.5f) * ((Random.Range (0, 2) * 2) - 1)));
-
-		// Spawn Magnet PowerUp
-		magnetPowerUp = Instantiate (magnetPowerUpPrefab) as GameObject;
-		magnetPowerUp.transform.SetParent (transform);
-		magnetPowerUp.transform.position = new Vector3 (tokenX, 1.0f, (spawnZ - platformLength/2) );
-
-		activeMagnet = true;
-	}
+		
 
 	private void TokenCleanup (int nullToken) {
 		activeTokens.RemoveAt (nullToken);
@@ -204,5 +303,9 @@ public class PlatformController : MonoBehaviour {
 
 	public void UpdateTokenList(int deletedTokenIndex) { 
 		activeTokens.RemoveAt (deletedTokenIndex);
+	}
+
+	public float GetScore() {
+		return score;
 	}
 }

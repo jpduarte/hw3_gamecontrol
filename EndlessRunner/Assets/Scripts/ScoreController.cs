@@ -13,11 +13,12 @@ public class ScoreController : MonoBehaviour {
 
 	public Text scoreText;
 	public MenuController deathMenu;
+	public Transform player;
+	public PlatformController platformController;
 
 	// Use this for initialization
 	void Start () {
-	
-
+		
 	}
 	
 	// Update is called once per frame
@@ -32,7 +33,7 @@ public class ScoreController : MonoBehaviour {
 		}
 
 		//score += Time.deltaTime;
-		score = GetComponent<PlayerController>().GetScore();
+		score = platformController.GetScore();
 		scoreText.text = "Score: " + ((int)score).ToString ();
 	}
 
@@ -45,7 +46,7 @@ public class ScoreController : MonoBehaviour {
 
 		difficultyLevel++;
 
-		GetComponent<PlayerController>().SetSpeed (difficultyLevel);
+		player.GetComponent<PlayerController>().SetSpeed (difficultyLevel);
 	}
 
 	public void onDeath() {

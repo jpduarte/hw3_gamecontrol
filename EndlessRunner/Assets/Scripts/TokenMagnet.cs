@@ -9,6 +9,7 @@ public class TokenMagnet : MonoBehaviour {
 
 	private float xMagnet;
 	private float zMagnet;
+	private float yMagnet;
 	private GameObject player;
 	private PlayerController playerController;
 
@@ -26,7 +27,8 @@ public class TokenMagnet : MonoBehaviour {
 			if (Vector3.Distance (transform.position, player.transform.position) > 0.0f) {
 				zMagnet = Vector3.MoveTowards (transform.position, player.transform.position, Time.deltaTime * zCoinSpeed).z;
 				xMagnet = Vector3.MoveTowards (transform.position, player.transform.position, Time.deltaTime * xCoinSpeed).x;
-				transform.position = new Vector3 (xMagnet, transform.position.y, zMagnet);
+				yMagnet = Vector3.MoveTowards (transform.position, player.transform.position, Time.deltaTime * xCoinSpeed).y;
+				transform.position = new Vector3 (xMagnet, yMagnet, zMagnet);
 				//transform.Translate(new Vector3 (player.position.x, transform.position.y, player.position.z));
 			}
 		}
