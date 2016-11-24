@@ -58,7 +58,7 @@ def plot_3D(data, view_from_top=False):
     """
     fig=plt.figure(figsize=(10,7))
     ax = fig.add_subplot(111, projection='3d')
-    colors = ['#0000ff', '#00ff00', '#ff0000']
+    colors = ['#0000ff', '#00ff00', '#ff0000', '#df239f', '#ff4d00', '#8497d1']
     for dat, color in zip(data, colors):
         Axes3D.scatter(ax, *dat.T, c=color)
     if view_from_top:
@@ -106,7 +106,7 @@ def selecttraindata(time,data,bounds):
 ###################################################################################################################################    load data
 
 #pathandfile = '../matplot/matdraw/feetcheck.txt'
-pathandfile = '../matplot/matdraw/feettrain.txt'
+pathandfile = '../matplot/matdraw/feethandtrain.txt'
 target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
 target.close()
@@ -114,7 +114,8 @@ time = datalist[:,0]/1000
 plt.figure(1)
 plt.plot( time,np.sum(datalist[:,1:],axis=1)/96,'o')
 
-bounds = [[6.8,14],[17.5,24.5],[29.5,38.5]]
+
+bounds = [[4.5,11.5],[15.5,20.0],[25,29.5],[67,73],[76.5,81],[86,93]]
 presortedmat = selecttraindata(time,datalist[:,1:],bounds)
 #print (len(presortedmat[0]))
 
@@ -139,7 +140,7 @@ plt.title('Averaged presorted 3 position')
 
 ###################################################################################################################################  Perform PCA and plot the first 3 principal components.
 # Repeat training with three data, producing 3 principal components
-
+'''
 plt.figure()
 three_new_basis, three_mean = PCA_train(three_position_training, 2)
 for comp in three_new_basis:
@@ -149,22 +150,41 @@ np.savetxt('basis3steps.txt', three_new_basis, delimiter=',')
 np.savetxt('mean3steps.txt', three_mean, delimiter=',')
 
 three_classified = PCA_classify(three_position_test, three_new_basis, three_mean)
-
 plt.scatter(three_classified[:,0],three_classified[:,1])
-plt.title('three_position_test projected to 3 principal components')
+plt.title('three_position_test projected to 2 principal components')
+
 
 plt.figure()
 presorted_classified = [PCA_classify(arraymatvalue, three_new_basis, three_mean) for arraymatvalue in presortedmat]
 three_classified_model = np.array(presorted_classified)
-print(three_classified_model)
-colors = ['#0000ff', '#00ff00', '#ff0000']
+print(len(presortedmat))
+colors = ['#0000ff', '#00ff00', '#ff0000', '#df239f', '#ff4d00', '#8497d1']
 for dat, colorvalue in zip(three_classified_model, colors):
     plt.scatter(dat[:,0],dat[:,1],color=colorvalue) #Axes3D.scatter(ax, *dat.T, c=color)
 #plt.plot(three_classified_model[:,0],three_classified_model[:,1])
 plt.title('Presorted data projected to 3 principal components')
+'''
+#NOTICE: 3D basis are needed otherwise clusters are too close
+plt.figure()
+three_new_basis, three_mean = PCA_train(three_position_training, 3)
+for comp in three_new_basis:
+    plt.plot(comp)
+#save data
+np.savetxt('basis3steps.txt', three_new_basis, delimiter=',')
+np.savetxt('mean3steps.txt', three_mean, delimiter=',')
+
+three_classified = PCA_classify(three_position_test, three_new_basis, three_mean)
+
+plot_3D([three_classified], False)
+plt.title('three_position_test projected to 3 principal components')
+
+
+presorted_classified = [PCA_classify(arraymatvalue, three_new_basis, three_mean) for arraymatvalue in presortedmat]
+plot_3D(np.array(presorted_classified), False)
+plt.title('Presorted data projected to 3 principal components')
 
 ###################################################################################################################################  Determine the centroids in the 3 position data
-kmeans = KMeans(n_clusters=3,precompute_distances=True).fit(three_classified)
+kmeans = KMeans(n_clusters=6,precompute_distances=True).fit(three_classified)
 centroid_list = kmeans.cluster_centers_
 labels = kmeans.labels_
 
@@ -172,12 +192,13 @@ labels = kmeans.labels_
 centroid1 = centroid_list[0]
 centroid2 = centroid_list[1]
 centroid3 = centroid_list[2]
+centroid4 = centroid_list[3]
+centroid5 = centroid_list[4]
+centroid6 = centroid_list[5]
 np.savetxt('cluster3steps.txt', centroid_list, delimiter=',')
 
-print('The first centroid is at: ' + str(centroid1))
-print('The second centroid is at: ' + str(centroid2))
-print('The third centroid is at: ' + str(centroid3))
-
+print(centroid_list)
+'''
 ###################################################################################################################################   Determine how many times position
 num_of_firings = [0,0,0]
 
@@ -191,5 +212,5 @@ print (len(three_classified[0]))
 print('Position 1 ' + str(num_of_firings[0]) + ' times')
 print('Position 2 ' + str(num_of_firings[1]) + ' times')
 print('Position 3 ' + str(num_of_firings[2]) + ' times')
-
+'''
 plt.show()
