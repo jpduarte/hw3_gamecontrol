@@ -21,12 +21,12 @@ def find_nearest(array,value):
     return idx
 
 #load file with data
-pathandfile = '../matplot/matdraw/5squats.txt'
-#pathandfile = '../matplot/matdraw/twohands.txt'
-target = open( pathandfile, 'r') 
+#pathandfile = '../matplot/matdraw/5squats.txt'
+pathandfile = '../matplot/matdraw/twohands.txt'
+target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
 
-#create 
+#create
 x = np.repeat(np.arange(8),12)
 y = np.tile(np.arange(12),8)
 
@@ -52,5 +52,3 @@ while (i<totalplot):
   i=i+1
 
 plt.show()
-
-
