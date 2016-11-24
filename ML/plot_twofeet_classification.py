@@ -23,13 +23,13 @@ def find_nearest(array,value):
     return idx
 
 #load file with data
-pathandfile = '../matplot/matdraw/twofeets.txt'
-pathandfile2 = '../matplot/matdraw/5squats.txt'
+pathandfile = '../matplot/matdraw/twohands.txt'
+pathandfile2 = '../matplot/matdraw/5pushups.txt'
 #pathandfile = '../matplot/matdraw/twohands.txt'
-target = open( pathandfile, 'r') 
+target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
 datalist2 = loadtxt(pathandfile2,delimiter=',',usecols=tuple(np.arange(97)))
-#create 
+#create
 
 time = datalist[:,0]/1000
 time2 = datalist2[:,0]/1000
@@ -46,30 +46,30 @@ for timeaux in time:
   '''if (timeaux<1.5):
     datatotrain = np.vstack((datatotrain , datalist[i,1:]))
     target = np.concatenate((target,[0]),axis=0)'''
-    
+
   if ((timeaux>6.3) and (timeaux<6.7)):
     datatotrain = np.vstack((datatotrain , data[i,:]))
-    target = np.concatenate((target,[1]),axis=0)  
+    target = np.concatenate((target,[1]),axis=0)
 
   if ((timeaux>7.5) and (timeaux<8)):
     datatotrain = np.vstack((datatotrain , data[i,:]))
-    target = np.concatenate((target,[2]),axis=0)      
-  
+    target = np.concatenate((target,[2]),axis=0)
+
   if (timeaux<5.9):
     expected = np.concatenate((expected,[0]),axis=0)
-    
+
   if ((timeaux>5.9) and (timeaux<6.7)):
-    expected = np.concatenate((expected,[1]),axis=0) 
-        
+    expected = np.concatenate((expected,[1]),axis=0)
+
   if ((timeaux>6.7) and (timeaux<10)):
-    expected = np.concatenate((expected,[2]),axis=0)  
+    expected = np.concatenate((expected,[2]),axis=0)
 
   if ((timeaux>10) and (timeaux<10.7)):
-    expected = np.concatenate((expected,[1]),axis=0)   
-    
+    expected = np.concatenate((expected,[1]),axis=0)
+
   if (timeaux>10.7):
-    expected = np.concatenate((expected,[0]),axis=0)        
-    
+    expected = np.concatenate((expected,[0]),axis=0)
+
   i=i+1
 #######################################################training############################################
 
@@ -86,9 +86,9 @@ i=0
 predicted = []
 for dataaux in data:
   if (np.sum(dataaux)/96<0.1):
-    predicted = np.concatenate((predicted,[0]),axis=0) 
+    predicted = np.concatenate((predicted,[0]),axis=0)
   else:
-    predicted = np.concatenate((predicted,classifier.predict(dataaux)),axis=0)    
+    predicted = np.concatenate((predicted,classifier.predict(dataaux)),axis=0)
 
 plt.figure(1)
 plt.plot( time,predicted,'o')
@@ -104,5 +104,3 @@ print("Confusion matrix:\n%s" % metrics.confusion_matrix(expected, predicted))
 
 print(len(time))
 plt.show()
-
-

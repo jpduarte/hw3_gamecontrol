@@ -8,7 +8,7 @@ from numpy import loadtxt
 from sklearn.cluster import KMeans
 
 def _make_training_set(data):
-    """ Separate data set into 2 sets. 
+    """ Separate data set into 2 sets.
     1/6 of the dataset is training set and the rest is test set
     Parameter:
         data: waveform data (width = number of samples per spike)
@@ -25,14 +25,14 @@ def PCA_train(training_set, n_components):
     Parameters:
         training_set: the data set to perform PCA on (MxN)
         n_components: the dimensionality of the basis to return (i.e. number of neurons)
-    Returns: 
-        The n_components principal components with highest significants and 
+    Returns:
+        The n_components principal components with highest significants and
         the mean of each column of the original data
-    Hint1: Subtract the mean of the data first so the average of each column is 0. The axis 
+    Hint1: Subtract the mean of the data first so the average of each column is 0. The axis
         parameter of np.mean is helpful here.
     Hint2: Find out a special property of the "s" returned by np.linalg.svd either by printing
         it out or reading the documentation.
-    """    
+    """
     # YOUR CODE HERE #
     # SOLN START #
     mean = np.mean(training_set, axis=0)
@@ -40,7 +40,7 @@ def PCA_train(training_set, n_components):
     U, s, V = np.linalg.svd(training_set)
     basis_components = V[:n_components]     # the larger components are given first
     # SOLN END #
-    
+
     return basis_components, mean
 
 def PCA_classify(data, new_basis, mean):
@@ -49,7 +49,7 @@ def PCA_classify(data, new_basis, mean):
         data: data to project (MxN)
         new_basis: new bases (KxN)
         mean: mean of each timestamp from PCA (list of length N)
-    Returns: 
+    Returns:
         Data projected onto new_basis (MxK)
     Hint: Don't forget to adjust the data with the PCA training mean!
     """
@@ -57,7 +57,7 @@ def PCA_classify(data, new_basis, mean):
     # SOLN START #
     return np.dot(data-mean, new_basis.T)
     # SOLN END #
-    
+
 def plot_3D(data, view_from_top=False):
     """ Takes list of arrays (x, y, z) coordinate triples
     One array of triples per color
@@ -69,22 +69,22 @@ def plot_3D(data, view_from_top=False):
         Axes3D.scatter(ax, *dat.T, c=color)
     if view_from_top:
         ax.view_init(elev=90.,azim=0)                # Move perspective to view from top
-  
+
 def which_neuron(data_point, centroid_list):
     """ Determine which centroid is closest to the data point
     Inputs:
         data_point: 1x2 array containing x/y coordinates of data point
         centroid1: 1x2 array containing x/y coordinates of centroid 1
         centroid2: 1x2 array containing x/y coordinates of centroid 1
-    Returns: 
+    Returns:
         The centroid closest to the data point
     """
-    
+
     # YOUR CODE HERE
     # SOLN START #
     i=0
     dist=100000.0
-    
+
     #print (data_point)
     for centroid in centroid_list:
       #print (i)
@@ -95,12 +95,12 @@ def which_neuron(data_point, centroid_list):
         dist=distaux
         group=i
       i=i+1
-    
+
     #print (group)
     return group
-    # SOLN END #    
-    
-#function that select data to be train    
+    # SOLN END #
+
+#function that select data to be train
 def selecttraindata(time,data,bounds):
   datatotrain = [None] * len(bounds)
   i=0
@@ -117,13 +117,14 @@ def selecttraindata(time,data,bounds):
       j=j+1
     i=i+1
   return datatotrain
-###################################################################################################################################    
+###################################################################################################################################
 
 ###################################################################################################################################    load data
-        
+
 #pathandfile = '../../matplot/matdraw/feetcheck.txt'
-pathandfile = '../../matplot/matdraw/feettrain.txt'
-target = open( pathandfile, 'r') 
+#pathandfile = '../../matplot/matdraw/feettrain.txt'
+pathandfile = '../matplot/matdraw/feettrain.txt'
+target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
 target.close()
 time = datalist[:,0]/1000
@@ -134,8 +135,8 @@ bounds = [[6.8,14],[17.5,24.5],[29.5,38.5]]
 presortedmat = selecttraindata(time,datalist[:,1:],bounds)
 #print (len(presortedmat[0]))
 
-###################################################################################################################################  Create training and testing dataset  
-    
+###################################################################################################################################  Create training and testing dataset
+
 # Create training and testing dataset
 two_neurons_training, two_neurons_test = _make_training_set(np.concatenate(presorted[1:]))
 three_position_training, three_position_test = _make_training_set(np.concatenate(presortedmat))
@@ -158,12 +159,12 @@ plt.title('Averaged presorted 3 position')
 ###################################################################################################################################  Perform PCA and plot the first 3 principal components.
 
 pathandfile = '../../matplot/matdraw/basis3steps.txt'
-target = open( pathandfile, 'r') 
+target = open( pathandfile, 'r')
 three_position_test = loadtxt(pathandfile,delimiter=',')
 target.close()
 
 pathandfile = '../../matplot/matdraw/mean3steps.txt'
-target = open( pathandfile, 'r') 
+target = open( pathandfile, 'r')
 three_mean = loadtxt(pathandfile,delimiter=',')
 target.close()
 
@@ -178,11 +179,11 @@ plt.title('three_position_test projected to 3 principal components')
 
 presorted_classified = [PCA_classify(spikes, three_new_basis, three_mean) for spikes in presortedmat]
 plot_3D(np.array(presorted_classified), False)
-plt.title('Presorted data projected to 3 principal components') 
+plt.title('Presorted data projected to 3 principal components')
 
 ###################################################################################################################################  Determine the centroids in the 3 position data
 pathandfile = '../../matplot/matdraw/cluster3steps.txt'
-target = open( pathandfile, 'r') 
+target = open( pathandfile, 'r')
 centroid_list = loadtxt(pathandfile,delimiter=',')
 target.close()
 
@@ -210,11 +211,10 @@ for i in range(0,len(three_classified)):
   #print ("neuron_number: "+str(neuron_number))
   num_of_firings[neuron_number] = num_of_firings[neuron_number] + 1
 
-print (len(three_classified[0]))   
-    
+print (len(three_classified[0]))
+
 # Print the results
 print('foot 1 Fired ' + str(num_of_firings[0]) + ' times')
 print('foot 2 Fired ' + str(num_of_firings[1]) + ' times')
 print('Both Feet 3 Fired ' + str(num_of_firings[2]) + ' times')
 plt.show()
-
