@@ -46,6 +46,7 @@ k=2
 while (i<totalplot):
   z = (datalist[(i-1)*int(len(time)/totalplot),1:])
   Z = z.reshape((8, 12))
+  #skimage.measure.moments_hu
   plt.figure(i)
   cp = plt.contourf(X, Y, Z,vmin=0, vmax=maxdata)
   plt.colorbar(cp)
