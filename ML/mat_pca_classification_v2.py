@@ -47,7 +47,7 @@ time = datalist[:,0]/1000
 plt.figure(1)
 
 plotelement = []
-'''for i in range(4,len(time)):
+for i in range(4,len(time)):
     #this implementation of Hu components doesnt work well
     #plotelement = -np.sum(datalist[i,1:])+8*np.sum(datalist[i-1,1:])+0*np.sum(datalist[i-2,1:])-8*np.sum(datalist[i-3,1:])+np.sum(datalist[i-4,1:]) #five point derivative is quite noisy
     #plotelement.append((np.sum(datalist[i,1:])+np.sum(datalist[i-1,1:])+np.sum(datalist[i-2,1:])+np.sum(datalist[i-3,1:])+np.sum(datalist[i-4,1:]))/5.0) #average (filtered gives similar results)
@@ -66,7 +66,7 @@ plotelement = []
     plt.plot( time[i],hu[0],'o',color='r')
     plt.plot( time[i],hu[1],'o',color='b')
     plt.plot( time[i],hu[2],'o',color='g')
-    plt.plot( time[i],hu[3],'o',color='k')'''
+    plt.plot( time[i],hu[3],'o',color='k')
 
 '''area=0
     for node in datalist[i,1:]:
@@ -75,7 +75,7 @@ plotelement = []
     #plt.plot( time[i],area,'o') #this give ok results'''
     #plt.plot( time[i],np.sum(datalist[i,1:])/area,'o') #this did not give clear results
 #plt.plot( time[4:],plotelement,'o')
-plt.figure(3)
+plt.figure(2)
 plt.plot( time,np.sum(datalist[:,1:],axis=1),'o')
 '''plt.figure(3)
     plt.plot( time[i],np.amax(datalist[i,1:],),'o')'''
@@ -106,7 +106,7 @@ target.close()
 clusterindex = []
 dataall = datalist[:,1:]
 i=0
-plt.figure(1)
+plt.figure(3)
 for data in dataall:
   if (np.sum(data)<25000):
     clusterindex = np.concatenate((clusterindex,[-1]),axis=0)
@@ -118,7 +118,7 @@ for data in dataall:
     plt.plot( time[i],three_classified[2],'o',color='b')
   i=i+1
 
-plt.figure(2)
+plt.figure(4)
 plt.plot( time,clusterindex,'o')
 
 
