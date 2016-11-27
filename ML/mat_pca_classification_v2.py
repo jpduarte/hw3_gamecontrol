@@ -38,7 +38,8 @@ def which_cluster(data_point, centroid_list):
 ###################################################################################################################################
 
 ###################################################################################################################################    load data
-pathandfile = '../matplot/matdraw/feethandtrain.txt'
+#pathandfile = '../matplot/matdraw/feethandtrain.txt'
+pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
 #pathandfile = '../matplot/matdraw/feettrain.txt'
 target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
@@ -47,7 +48,7 @@ time = datalist[:,0]/1000
 plt.figure(1)
 
 plotelement = []
-for i in range(4,len(time)):
+'''for i in range(4,len(time)):
     #this implementation of Hu components doesnt work well
     #plotelement = -np.sum(datalist[i,1:])+8*np.sum(datalist[i-1,1:])+0*np.sum(datalist[i-2,1:])-8*np.sum(datalist[i-3,1:])+np.sum(datalist[i-4,1:]) #five point derivative is quite noisy
     #plotelement.append((np.sum(datalist[i,1:])+np.sum(datalist[i-1,1:])+np.sum(datalist[i-2,1:])+np.sum(datalist[i-3,1:])+np.sum(datalist[i-4,1:]))/5.0) #average (filtered gives similar results)
@@ -67,7 +68,7 @@ for i in range(4,len(time)):
     plt.plot( time[i],hu[1],'o',color='b')
     plt.plot( time[i],hu[2],'o',color='g')
     plt.plot( time[i],hu[3],'o',color='k')
-
+'''
 '''area=0
     for node in datalist[i,1:]:
         if node>500:
@@ -87,18 +88,18 @@ plt.plot( time,np.sum(datalist[:,1:],axis=1),'o')
 
 ###################################################################################################################################  Perform PCA and centroid classification
 
-pathandfile = './basis3steps.txt'
+pathandfile = './basis3steps_v3.txt'
 target = open( pathandfile, 'r')
 three_new_basis = loadtxt(pathandfile,delimiter=',')
 target.close()
 
-pathandfile = './mean3steps.txt'
+pathandfile = './mean3steps_v3.txt'
 target = open( pathandfile, 'r')
 three_mean = loadtxt(pathandfile,delimiter=',')
 target.close()
 
 
-pathandfile = './cluster3steps.txt'
+pathandfile = './cluster3steps_v3.txt'
 target = open( pathandfile, 'r')
 centroid_list = loadtxt(pathandfile,delimiter=',')
 target.close()
@@ -108,7 +109,7 @@ dataall = datalist[:,1:]
 i=0
 plt.figure(3)
 for data in dataall:
-  if (np.sum(data)<25000):
+  if (np.sum(data)<42000):
     clusterindex = np.concatenate((clusterindex,[-1]),axis=0)
   else:
     three_classified = PCA_classify(data, three_new_basis, three_mean)

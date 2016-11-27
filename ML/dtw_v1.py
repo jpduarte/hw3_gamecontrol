@@ -18,7 +18,7 @@ def dtw(x, y, dist):
     for i in range(r):
         for j in range(c):
             D1[i, j] = dist(x[i], y[j])
-    C = D1.copy()
+    '''C = D1.copy()
     for i in range(r):
         for j in range(c):
             D1[i, j] += min(D0[i, j], D0[i, j+1], D0[i+1, j])
@@ -27,8 +27,8 @@ def dtw(x, y, dist):
     elif len(y) == 1:
         path = range(len(x)), zeros(len(x))
     else:
-        path = _traceback(D0)
-    return D1[-1, -1] / sum(D1.shape), C, D1, path
+        path = _traceback(D0)'''
+    return D1[-1, -1] / sum(D1.shape)#, C, D1, path
 
 def _traceback(D):
     i, j = array(D.shape) - 2
