@@ -102,7 +102,7 @@ plt.plot( range(len(add_all)),add_all-add_all.mean(),'-')
 
 data_to_filter = add_all-add_all.mean()
 time_fit = np.arange(len(add_all),dtype=float)
-z = np.poly1d(np.polyfit(time_fit, data_to_filter, 2))
+z = np.poly1d(np.polyfit(time_fit, data_to_filter, 3))
 y = z(time_fit)
 plt.plot(time_fit,y,'--')
 print(time_fit)
@@ -179,12 +179,11 @@ for data in dataall[:len(dataall)//1]:
   data_dtw = update_data_dtw(data_dtw,new_data,min_len)
   std_array.append(np.std(data_dtw))
   #dist = dtw(data_dtw, data_dtw_reference, euclidean_distances) #, cost, acc, path
-  dist = np.linalg.norm(data_dtw_reference-(data_dtw-data_dtw.mean()),ord=4)
+  dist = (np.linalg.norm(data_dtw_reference-(data_dtw-data_dtw.mean()),ord=4))**4.0
   distance_all.append(1/dist)
-
-
-  if ((1/dist)>2.2e-4 and i>min_len):
-    print("Time: ",time[i])
+  #print(np.sum(data),data_dtw.mean(),dist,data_dtw_reference[0],data_dtw_reference[1],data_dtw_reference[2],(data_dtw_reference[-1]-(data_dtw[-1]-data_dtw.mean())),data_dtw_reference[-1],len(data_dtw_reference))
+  if ((1/dist)>(2.2e-4)**4.0 and i>min_len):
+    print("Time: ",time[i],dist,1/((2.2e-4)**4.0))
     plt.figure(2)
     #print(new_data_aux,data_dtw,i,len(time[i-min_len:i]),len((data_dtw_reference+data_dtw.mean())))
     plt.plot( time[i-min_len:i],(data_dtw_reference+data_dtw.mean()),'s')
@@ -207,4 +206,6 @@ plt.plot( range(min_len),data_dtw_reference,'o')
 plt.figure(8)
 plt.plot(  time[:len(three_classified_0)],std_array,'o')
 
+print(z)
+print(min_len)
 plt.show()

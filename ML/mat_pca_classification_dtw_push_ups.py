@@ -259,6 +259,7 @@ for sample in pushup_sample:
     if (min_len_aux<min_len):
         min_len=min_len_aux
 
+min_len=44
 add_all = np.zeros(min_len)
 print(len(add_all))
 i=0
@@ -272,7 +273,7 @@ plt.plot( range(len(add_all)),add_all-add_all.mean(),'-')
 
 data_to_filter = add_all-add_all.mean()
 time_fit = np.arange(len(add_all),dtype=float)
-z = np.poly1d(np.polyfit(time_fit, data_to_filter, 4))
+z = np.poly1d(np.polyfit(time_fit, data_to_filter, 3))
 y = z(time_fit)
 plt.plot(time_fit,y,'--')
 print(time_fit)
@@ -294,7 +295,7 @@ for three_classified_0_aux in three_classified_0:
     distance_all.append(1/dist)
 
 
-    if ((1/dist)>3e-3 and i>min_len):
+    if ((1/dist)>3.4e-3 and i>min_len):
        print("Time: ",time[i])
        plt.figure(3)
        #print(new_data_aux,data_dtw,i,len(time[i-min_len:i]),len((data_dtw_reference+data_dtw.mean())))
@@ -303,4 +304,7 @@ for three_classified_0_aux in three_classified_0:
     i=i+1
 plt.figure(6)
 plt.plot(  time[:len(three_classified_0)],distance_all,'o')
+
+print(z)
+print(min_len)
 plt.show()
