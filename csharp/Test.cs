@@ -80,6 +80,14 @@ class Test
         }
 
     }
+
+    private void print_data(float[] data) {
+     for (int i = 1; i < data.Length-1; i++)
+     {
+       Console.WriteLine(data[i]);
+     }
+   	}
+
 }
 
 
