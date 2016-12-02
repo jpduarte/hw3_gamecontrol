@@ -170,7 +170,7 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 1
       loopBlendPositionY: 0
@@ -183,6 +183,14 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
+      - time: 0.5021097
+        functionName: PushUpCount
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 594399b6c37154391adeb16f7d26a6ec,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       - time: 0.85602677
         functionName: FinishPushUp
         data: 

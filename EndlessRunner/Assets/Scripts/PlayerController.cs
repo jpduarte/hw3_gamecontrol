@@ -23,7 +23,9 @@ public class PlayerController : MonoBehaviour {
 	private float timeStart = 0.0f;
 	//private Transform hips;
 	private Light powerUpLight;
-
+	private int pushUpNumber = 5;
+	private int pushUpCount = 0;
+	private int detectCount = 0;
 
 	public float vSpeed = 0.5f;
 	public float hSpeed = 5.0f;
@@ -32,13 +34,15 @@ public class PlayerController : MonoBehaviour {
 	public Text pushUpText;
 	public CameraController cameraController;
 	public ScoreController scoreController;
+	public PressureMatController pressureMatController;
 	public float powerUpTimeLimit = 10.0f;
 
 	private bool activeMagnet = false;
 	private bool activeStar = false;
-
+	private bool pushUpDetected = false;
 	//define Input Controller class
 	public InputController _inputController;
+
 
 
 	// Use this for initialization
@@ -105,6 +109,16 @@ public class PlayerController : MonoBehaviour {
 			}
 			*/
 			vStop = 0.0f;
+			pushUpDetected = pressureMatController.GetPushUpDetected ();
+			if (pushUpDetected) {
+				detectCount++;
+				if (detectCount > 6) {
+					pushUpCount++;
+					detectCount = 0;
+				}
+				pushUpText.text = pushUpCount.ToString() + " Out of "  + pushUpNumber.ToString() + " Push UPs!";
+				pushUpDetected = false;
+			}
 
 			//transform.Rot
 			print ("PushUp");
@@ -219,44 +233,42 @@ public class PlayerController : MonoBehaviour {
 	public void StartPushUp() {
 		//print ("SetPushup");
 		isIdleToPushUp = true;
-		pushUpText.text = "Do 2 PushUPs!";
+		pushUpText.text = pushUpCount.ToString() + " Out of "  + pushUpNumber.ToString() + " Push UPs!";
 
 	}
 
 	public void ContinuePushUp() {
 		isPushUp = true;
+
+	}
+
+	public void PushUpCount () {
+		//pushUpCount++;
+		//pushUpText.text = pushUpCount.ToString() + " Out of "  + pushUpNumber.ToString() + " Push UPs!";
 	}
 
 	public void FinishPushUp() {
-		isPushUpToIdle = true;
+		if (pushUpCount >= pushUpNumber-1) {
+			isPushUpToIdle = true;
+		}
+
+		
 	}
 
 	public void DonePushUp() {
-		isIdleToPushUp = false;
-		isPushUp = false;
-		isPushUpToIdle = false;
-		//float offCenter = transform.localEulerAngles.y;
-		pushUpText.text = "Good Job!";
-		transform.rotation = Quaternion.identity;
-		timeFinishPushUp = Time.time;
+			isIdleToPushUp = false;
+			isPushUp = false;
+			isPushUpToIdle = false;
+			pushUpCount = 0;
+			//float offCenter = transform.localEulerAngles.y;
+			pushUpText.text = "Good Job!";
+			transform.rotation = Quaternion.identity;
+			timeFinishPushUp = Time.time;
+	}
+		
 
-		//float zPosition = transform.position.z;
-		//transform.position = new Vector3 (0.0f, 0.0f, zPosition);
-
-		//Vector3 goStraight;
-		//int i = 0;
-		//while (offCenter != 0.0f) {
-		//GetComponent<Transform>().Rotate (new Vector3 (0.0f, -90.0f, 0.0f));
-		//	offCenter = transform.localEulerAngles.y;
-		//print ("OffCenter: " + offCenter);
-
-		//}
-
-		//transform.localEularAngles = new Vector3 (0f, 0f, 0f);
-		//Quaternion offCenter = transform.rotation;
-		//Vector3 goStraight = offCenter.eulerAngles*-5.0f;
-		//transform.localEulerAngles = new Vector3.zero;
-
+	public bool GetPushUp() {
+		return isIdleToPushUp;
 	}
 		
 	public float GetScore() {
