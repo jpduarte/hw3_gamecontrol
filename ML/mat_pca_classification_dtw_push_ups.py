@@ -75,7 +75,8 @@ def selecttraindata1D(time,data,bounds):
 
 ###################################################################################################################################    load data
 #pathandfile = '../matplot/matdraw/feethandtrain.txt'
-pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
+#pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
+pathandfile = '../matplot/matdraw/juan_v1.txt'
 #pathandfile = '../matplot/matdraw/feettrain.txt'
 target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
@@ -252,8 +253,11 @@ plt.figure(9)
 min_len = np.inf
 
 for sample in pushup_sample:
+
     average_wave = np.asarray(sample)
-    average_sample =  average_wave.mean()
+    print("ave: ")
+    print(average_wave)
+    average_sample =  np.sum(average_wave)#/len(average_wave)#average_wave.mean()
     plt.plot( range(len(sample)),average_wave-average_sample,'o')
     min_len_aux = len(average_wave)
     if (min_len_aux<min_len):

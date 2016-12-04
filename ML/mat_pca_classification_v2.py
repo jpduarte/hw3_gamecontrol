@@ -39,7 +39,9 @@ def which_cluster(data_point, centroid_list):
 
 ###################################################################################################################################    load data
 #pathandfile = '../matplot/matdraw/feethandtrain.txt'
-pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
+#pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
+#pathandfile = '../matplot/matdraw/juan_v1.txt'
+pathandfile = '../matplot/matdraw/josh_v1.txt'
 #pathandfile = '../matplot/matdraw/feettrain.txt'
 target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
@@ -88,18 +90,18 @@ plt.plot( time,np.sum(datalist[:,1:],axis=1),'o')
 
 ###################################################################################################################################  Perform PCA and centroid classification
 
-pathandfile = './basis3steps_v3.txt'
+pathandfile = './basis3steps_josh_v1.txt'
 target = open( pathandfile, 'r')
 three_new_basis = loadtxt(pathandfile,delimiter=',')
 target.close()
 
-pathandfile = './mean3steps_v3.txt'
+pathandfile = './mean3steps_josh_v1.txt'
 target = open( pathandfile, 'r')
 three_mean = loadtxt(pathandfile,delimiter=',')
 target.close()
 
 
-pathandfile = './cluster3steps_v3.txt'
+pathandfile = './cluster3steps_josh_v1.txt'
 target = open( pathandfile, 'r')
 centroid_list = loadtxt(pathandfile,delimiter=',')
 target.close()
@@ -109,7 +111,7 @@ dataall = datalist[:,1:]
 i=0
 plt.figure(3)
 for data in dataall:
-  if (np.sum(data)<42000):
+  if (np.sum(data)<15000):
     clusterindex = np.concatenate((clusterindex,[-1]),axis=0)
   else:
     three_classified = PCA_classify(data, three_new_basis, three_mean)

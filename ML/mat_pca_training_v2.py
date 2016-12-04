@@ -106,7 +106,8 @@ def selecttraindata(time,data,bounds):
 ###################################################################################################################################    load data
 
 #pathandfile = '../matplot/matdraw/feetcheck.txt'
-pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
+pathandfile = '../matplot/matdraw/josh_v1.txt'
+#pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
 target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
 target.close()
@@ -116,7 +117,7 @@ plt.plot( time,np.sum(datalist[:,1:],axis=1)/96,'o')
 
 
 #bounds = [[4.5,11.5],[15.5,20.0],[25,29.5],[67,73],[76.5,81],[86,93]]
-bounds = [[6.5,14],[17.5,24.0],[28.5,38.5],[146.5,155.5],[158.5,166],[169.5,179]]
+bounds = [[3.5,11],[14.5,21.0],[24.5,30.5],[67,73],[77,82],[84.5,91]]
 presortedmat = selecttraindata(time,datalist[:,1:],bounds)
 #print (len(presortedmat[0]))
 
@@ -171,8 +172,8 @@ three_new_basis, three_mean = PCA_train(three_position_training, 3)
 for comp in three_new_basis:
     plt.plot(comp)
 #save data
-np.savetxt('basis3steps_v3.txt', three_new_basis, delimiter=',')
-np.savetxt('mean3steps_v3.txt', three_mean, delimiter=',')
+np.savetxt('basis3steps_josh_v1.txt', three_new_basis, delimiter=',')
+np.savetxt('mean3steps_josh_v1.txt', three_mean, delimiter=',')
 
 three_classified = PCA_classify(three_position_test, three_new_basis, three_mean)
 
@@ -196,7 +197,7 @@ centroid3 = centroid_list[2]
 centroid4 = centroid_list[3]
 centroid5 = centroid_list[4]
 centroid6 = centroid_list[5]
-np.savetxt('cluster3steps_v3.txt', centroid_list, delimiter=',')
+np.savetxt('cluster3steps_josh_v1.txt', centroid_list, delimiter=',')
 
 print(centroid_list)
 '''
