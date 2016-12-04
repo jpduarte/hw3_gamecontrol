@@ -69,17 +69,16 @@ pathandfile = '../matplot/matdraw/josh_v1.txt'
 pathandfile_basis = './basis3steps_josh_v1.txt'
 pathandfile_mean = './mean3steps_josh_v1.txt'
 pathandfile_cluster = './cluster3steps_josh_v1.txt'
-bounds_sum = [[39,42],[43,46]]
+bounds_sum = [[41.3,44.3],[45.5,49]]
 bounds_proj0 = bounds_sum
 bounds_proj1 = bounds_sum
 bounds_proj2 = bounds_sum
 smooth_order = 5
-distance_weights = [1.0,0,0,0]
+distance_weights = [0.0,0.0,0,1.0]#total sum, projection 1, 2 and 3
 threshold_min=15000
 threshold_min_ave=15000 #set a minimun for smoothing
-distance_weigths = [0.0,1.0,0.0,0.0] #total sum, projection 1, 2 and 3
 distance_order = 4.0
-threshold_detection = 1.6e-15**4
+threshold_detection = 1/1.6e-10
 
 #initialization
 poly1d_train_sum = np.poly1d([0,0,0,0])
@@ -287,11 +286,18 @@ for data in dataall[:len(dataall)//1]:
   dist = dist_sum*distance_weights[0]+dist_proj0*distance_weights[1]+dist_proj1*distance_weights[2]+dist_proj2*distance_weights[3]
   distance_all.append(1/dist)
   #print(new_data_aux_proj0,new_data_aux_proj1,new_data_aux_proj2 )
-  if ((1/dist)>(threshold_detection)**(1/distance_order) and i>min_len):
+  if ((dist)<(threshold_detection) and i>min_len):
     plt.figure(1)
     #print(data_dtw_reference_sum-(data_dtw_sum-data_dtw_sum.mean()),data_dtw_reference_proj0-(data_dtw_proj0-data_dtw_proj0.mean()))
     plt.plot( time[i-min_len:i],(data_dtw_reference_sum+data_dtw_sum.mean()),'s')
     plt.plot( time[i-min_len:i],data_dtw_sum,'*')
+    plt.figure(6)
+    plt.plot( time[i-min_len:i],(data_dtw_reference_proj0+data_dtw_proj0.mean()),'s')
+    plt.plot( time[i-min_len:i],data_dtw_proj0,'*')
+    plt.plot( time[i-min_len:i],(data_dtw_reference_proj1+data_dtw_proj1.mean()),'s')
+    plt.plot( time[i-min_len:i],data_dtw_proj1,'*')
+    plt.plot( time[i-min_len:i],(data_dtw_reference_proj2+data_dtw_proj2.mean()),'s')
+    plt.plot( time[i-min_len:i],data_dtw_proj2,'*')
 
 plt.figure(6)
 plt.plot( time[:len(three_classified_0)],three_classified_0,'o',color='k')
@@ -306,4 +312,5 @@ plt.plot( range(min_len),data_dtw_reference_sum,'o')
 
 print(poly1d_train_sum,poly1d_train_proj0,poly1d_train_proj1,poly1d_train_proj2)
 print(min_len)
+print("threshold",(threshold_detection))
 plt.show()
