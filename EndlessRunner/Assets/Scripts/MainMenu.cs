@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -18,8 +18,8 @@ public class MainMenu : MonoBehaviour {
 
 
 	public void ToMenu() {
-
-		SceneManager.LoadScene ("EndlessRunner");
+    UnityEngine.SceneManagement.SceneManager.LoadScene("EndlessRunner");
+		//SceneManager.LoadScene ("EndlessRunner");
 
 	}
 }

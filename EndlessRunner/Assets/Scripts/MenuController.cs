@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour {
 
@@ -36,7 +36,8 @@ public class MenuController : MonoBehaviour {
 	}
 
 	public void Restart() {
-		SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+		//SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+		UnityEngine.SceneManagement.SceneManager.LoadScene  (SceneManager.GetActiveScene ().name);
 	}
 
 	public void ToMenu() {
