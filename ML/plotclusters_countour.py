@@ -21,12 +21,12 @@ def find_nearest(array,value):
     return idx
 
 #load file with data
-pathandfile = '../matplot/matdraw/5squats.txt'
-#pathandfile = '../matplot/matdraw/twohands.txt'
-target = open( pathandfile, 'r') 
+#pathandfile = '../matplot/matdraw/5squats.txt'
+pathandfile = '../matplot/matdraw/twohands.txt'
+target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
 
-#create 
+#create
 x = np.repeat(np.arange(8),12)
 y = np.tile(np.arange(12),8)
 
@@ -46,11 +46,10 @@ k=2
 while (i<totalplot):
   z = (datalist[(i-1)*int(len(time)/totalplot),1:])
   Z = z.reshape((8, 12))
+  #skimage.measure.moments_hu
   plt.figure(i)
   cp = plt.contourf(X, Y, Z,vmin=0, vmax=maxdata)
   plt.colorbar(cp)
   i=i+1
 
 plt.show()
-
-

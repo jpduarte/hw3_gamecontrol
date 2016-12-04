@@ -46,7 +46,7 @@ void setup() {
             vertices[i][j] = new PVector( i*w, j*w, 0);
         }
     }  
-  output = createWriter("feetcheck.txt"); 
+  output = createWriter("x.txt"); 
   
 }
 
