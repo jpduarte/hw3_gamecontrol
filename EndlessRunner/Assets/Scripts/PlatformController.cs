@@ -158,7 +158,7 @@ public class PlatformController : MonoBehaviour {
 		}
 		//Make sure all the platforms have same parent
 		tokenBound = Mathf.Abs(platform.GetComponentsInChildren<Collider>()[0].bounds.extents.x);
-		print("Token Bound: " + tokenBound);
+		//print("Token Bound: " + tokenBound);
 		platform.transform.SetParent (transform);
 		//Place the platfor at the new spawn point
 		platform.transform.position = Vector3.forward * spawnZ;

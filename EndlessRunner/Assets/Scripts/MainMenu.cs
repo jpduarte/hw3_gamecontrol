@@ -11,7 +11,7 @@ public class MainMenu : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		highScoreText.text = "High Score: " + (int)PlayerPrefs.GetFloat ("HighScore");
+		highScoreText.text = "High Score: " + PlayerPrefs.GetString("Champ") + " " + (int)PlayerPrefs.GetFloat ("HighScore");
 	
 	}
 

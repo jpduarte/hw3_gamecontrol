@@ -57,13 +57,18 @@
      <Compile Include="Assets\Scripts\PressureMatController.cs" />
      <Compile Include="Assets\Scripts\PushUpStation.cs" />
      <Compile Include="Assets\Scripts\ScoreController.cs" />
+     <Compile Include="Assets\Scripts\SettingsController.cs" />
+     <Compile Include="Assets\Scripts\SquatStation.cs" />
      <Compile Include="Assets\Scripts\TokenDestroyer.cs" />
      <Compile Include="Assets\Scripts\TokenMagnet.cs" />
      <Compile Include="Assets\Scripts\TokenRotator.cs" />
+     <None Include="Assets\TrainingData\mean3steps_josh_v1.txt" />
      <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAlpha.shader" />
      <None Include="Assets\Standard Assets\ParticleSystems\ParticleSystemsGuidelines.txt" />
+     <None Include="Assets\TrainingData\basis3steps_josh_v1.txt" />
      <None Include="Assets\Fonts\LuckiestGuy\LICENSE.txt" />
      <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAddSoft.shader" />
+     <None Include="Assets\TrainingData\cluster3steps_josh_v1.txt" />
      <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAdd.shader" />
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>

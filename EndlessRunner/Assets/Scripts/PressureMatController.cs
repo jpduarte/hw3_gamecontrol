@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Text;
@@ -10,13 +10,17 @@ public class PressureMatController : MonoBehaviour {
 
 	public GameObject player;
 	private PlayerController playerController;
-	int threshold_data = 50000;
+	public int threshold_data = 15000;
 	string line;
 	float time;
-	float[] add_data_time = Enumerable.Repeat(0.0f,44).ToArray();
-	float[] projection1_time = Enumerable.Repeat(0.0f,44).ToArray();
 	float mean_time_data;
+	float mean_time_data0;
+	float mean_time_data1;
+	float mean_time_data2;
 	float distance;
+	float distance0;
+	float distance1;
+	float distance2;
 	float[] polynomial_squad = new float[4] {3469.0f,-689.5f,24.17f,-0.1827f};
 	float[] polynomial_push_up = new float[4] {-177.2f,-6.723f,1.115f,-0.01836f};
 	//for squad: -0.1827 x3 + 24.17 x2 - 689.5 x + 3469, average, length 44, order 4 for distance
@@ -33,28 +37,46 @@ public class PressureMatController : MonoBehaviour {
 	string path;
 	int j;
 	bool pushUpDetected = false;
+	int timeDataSize = 44;
+	private Queue<float> matDataTimeQueue;
+	float[] add_data_time;
+	private Queue<float> projectionQueue0; 
+	float[] projection0_time;
+	private Queue<float> projectionQueue1;
+	float[] projection1_time; 
+	private Queue<float> projectionQueue2; 
+	float[] projection2_time; 
 
 	System.IO.StreamReader file1; 
 
 
 	int lineCount;
-	int lineNumber = 0;
+	//int lineNumber = 0;
 
 	// Use this for initialization
 	void Start () {
 
+		Queue<float> matDataTimeQueue = new Queue<float>(timeDataSize);
+		float[] add_data_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
+		Queue<float> projectionQueue0 = new Queue<float>(timeDataSize);
+		float[] projection0_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
+		Queue<float> projectionQueue1 = new Queue<float>(44);
+		float[] projection1_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
+		Queue<float> projectionQueue2 = new Queue<float>(44);
+		float[] projection2_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
+
 		playerController = player.GetComponent<PlayerController> ();
 		LoadTrainingSet ();
 
-		path = "/Users/j_kay/Documents/IDD/git_final/hw3_gamecontrol/matplot/matdraw/2016_11_26_test.txt";
-		file1 = new System.IO.StreamReader(path);
+		//path = "../matplot/matdraw/2016_11_26_test.txt";
+		//file1 = new System.IO.StreamReader(path);
 
 		//Get number of lines
-
+		/*
 		while (file1.ReadLine() != null)
 		{
 			lineCount++;
-		}
+		}*/
 
 
 	}
@@ -62,17 +84,19 @@ public class PressureMatController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		pushUpDetected = false;
+
 		if (playerController.GetPushUp()) {
 			//print ("MAT GO!");
-			print ("Line Count" + lineCount);
+			mat_data = playerController.GetMatData();
+			PressureMatDetection ();
+			/*print ("Line Count" + lineCount);
 			if (lineNumber < lineCount) {
 				//print ("INSIDE MAT");
-				PressureMatDetection (lineNumber);
+				PressureMatDetection ();
 				lineNumber++;
 			} else {
 				lineNumber = 0;
-			}
+			}*/
 		}
 
 
@@ -81,7 +105,7 @@ public class PressureMatController : MonoBehaviour {
 
 	void LoadTrainingSet () {
 		/////////////////////////////////////////////////enter mean vector information
-		path = "/Users/j_kay/Documents/IDD/git_final/hw3_gamecontrol/ML/mean3steps_v3.txt";
+		path = "/Users/j_kay/Documents/unity_games/EndlessRunner/Assets/TrainingData/mean3steps_josh_v1.txt";
 		System.IO.StreamReader file0 = new System.IO.StreamReader (path);
 		j = 0;
 		while ((line = file0.ReadLine ()) != null) {
@@ -91,7 +115,7 @@ public class PressureMatController : MonoBehaviour {
 
 
 		/////////////////////////////////////////////////enter basis vector information
-		path = "/Users/j_kay/Documents/IDD/git_final/hw3_gamecontrol/ML/basis3steps_v3.txt";
+		path = "/Users/j_kay/Documents/unity_games/EndlessRunner/Assets/TrainingData/basis3steps_josh_v1.txt";
 		System.IO.StreamReader file2 = new System.IO.StreamReader (path);
 		j = 0;
 		while ((line = file2.ReadLine ()) != null) {
@@ -107,7 +131,7 @@ public class PressureMatController : MonoBehaviour {
 		}
 
 		/////////////////////////////////////////////////enter clusters information
-		path = "/Users/j_kay/Documents/IDD/git_final/hw3_gamecontrol/ML/cluster3steps_v3.txt";
+		path = "/Users/j_kay/Documents/unity_games/EndlessRunner/Assets/TrainingData/cluster3steps_josh_v1.txt";
 		System.IO.StreamReader file3 = new System.IO.StreamReader (path);
 		j = 0;
 		while ((line = file3.ReadLine ()) != null) {
@@ -134,53 +158,75 @@ public class PressureMatController : MonoBehaviour {
 	}
 
 
-	void PressureMatDetection(int lineNumber) {
+	void PressureMatDetection() {
 			
-			//line = file1.ReadLine (lineNumber);
-			path = "/Users/j_kay/Documents/IDD/git_final/hw3_gamecontrol/matplot/matdraw/2016_11_26_test.txt";
-			line = GetLine(path, lineNumber);
-			//Console.WriteLine(line);
-			string[] data = line.Split(',');
+		//line = file1.ReadLine (lineNumber);
+		//path = "/Users/j_kay/Documents/IDD/git_final/hw3_gamecontrol/matplot/matdraw/2016_11_26_test.txt";
+		//line = GetLine(path, lineNumber);
+		//Console.WriteLine(line);
+		//string[] data = line.Split(',');
 		//print ("Line" + line);
 		//print ("Data" + data);
-			//Console.WriteLine(data.Length);
-			time = float.Parse(data[0])/1000;
-			add_data = 0;
-			for (int i = 1; i < data.Length-1; i++)
-			{
-				mat_data[i-1] = float.Parse(data[i]);
-				add_data = add_data+mat_data[i-1];
-				//Console.WriteLine(data[i]);
-			}
+		//Console.WriteLine(data.Length);
+		//time = (mat_data[0])/1000;
+		add_data = 0;
+		for (int i = 0; i < mat_data.Length; i++)
+		{
+			add_data = add_data+mat_data[i];
+			//Console.WriteLine(data[i]);
+		//print("Mat Data[" + i.ToString() + "]: " + mat_data[i].ToString());
+		}
+		print ("Add Data " + add_data);
+		//print ("Threshold " + threshold_data);
+		//Classification:
+		//state= -1 (no one on board), 4: right feet, 1: left feet, 0: both foots, 2: right hand, 5: left hand, 3: both hands
+		if (add_data>threshold_data) {//check threshold data
+			projections = PCA_classify(mat_data,basis,mean_vector,projections);
+		//print ("Projections [0] " + projections[0] + "Projections [1] " + projections[1] + "Projections [2] " + projections[2]);
+			state = which_cluster(projections,centroids);
+		} else {
+			state=-1;
+		}
+		//Console.WriteLine(time);
+		print("State: " + state);
+		//Console.WriteLine(state);
 
-			//Classification:
-			//state= -1 (no one on board), 4: right feet, 1: left feet, 0: both foots, 2: right hand, 5: left hand, 3: both hands
-			if (add_data>threshold_data) {//check threshold data
-				projections = PCA_classify(mat_data,basis,mean_vector,projections);
-				state = which_cluster(projections,centroids);
-			} else {
-				state=-1;
-			}
-			Console.WriteLine(time);
-			Console.WriteLine(state);
+		//detect squad, this is like a switch data, so a positive must be handle like such, i.e. many positives will be together
+		//add_data_time = FIFO_update(add_data_time,add_data);
+		matDataTimeQueue.Enqueue (add_data);
+		add_data_time = matDataTimeQueue.ToArray ();
+		mean_time_data = mean_data(add_data_time);
+		distance = distance_to_template(add_data_time,mean_time_data,polynomial_squad);
+		Console.WriteLine(distance);
+		if ((distance)<4.267e14){
+			print("squad squad squad squad squad squad squad");
+		}
 
-			//detect squad, this is like a switch data, so a positive must be handle like such, i.e. many positives will be together
-			add_data_time = FIFO_update(add_data_time,add_data);
-			mean_time_data = mean_data(add_data_time);
-			distance = distance_to_template(add_data_time,mean_time_data,polynomial_squad);
-			Console.WriteLine(distance);
-			if ((distance)<4.267e14){
-				print("squad squad squad squad squad squad squad");
-			}
+		//detect push up, this is like a switch data, so a positive must be handle like such, i.e. many positives will be together
+		projectionQueue0.Enqueue (projections[0]);
+		projection0_time = projectionQueue0.ToArray ();
+		//projection0_time = FIFO_update(projection0_time,projections[0]);
+		mean_time_data0 = mean_data(projection0_time);
+		distance0 = distance_to_template(projection0_time,mean_time_data0,polynomial_push_up);
 
-			//detect push up, this is like a switch data, so a positive must be handle like such, i.e. many positives will be together
-			projection1_time = FIFO_update(projection1_time,projections[0]);
-			mean_time_data = mean_data(projection1_time);
-			distance = distance_to_template(projection1_time,mean_time_data,polynomial_push_up);
-			if ((distance)<7483147950.81){
-				print("push-up push-up push-up push-up push-up push-up ");
-				pushUpDetected = true;
-			}
+		projectionQueue1.Enqueue (projections[1]);
+		projection1_time = projectionQueue1.ToArray ();
+		//projection1_time = FIFO_update(projection1_time,projections[1]);
+		mean_time_data1 = mean_data(projection1_time);
+		distance1 = distance_to_template(projection1_time,mean_time_data1,polynomial_push_up);
+
+		projectionQueue2.Enqueue (projections[2]);
+		projection2_time = projectionQueue2.ToArray ();
+		//projection2_time = FIFO_update(projection2_time,projections[1]);
+		mean_time_data2 = mean_data(projection2_time);
+		distance2 = distance_to_template(projection2_time,mean_time_data2,polynomial_push_up);
+
+		if ((distance) < 7483147950.81) {
+			print ("push-up push-up push-up push-up push-up push-up ");
+			pushUpDetected = true;
+		} else {
+			pushUpDetected = false;
+		}
 		///////////////////////////////////////////////////////////
 	}
 

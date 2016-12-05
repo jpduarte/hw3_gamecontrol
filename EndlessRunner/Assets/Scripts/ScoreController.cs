@@ -12,13 +12,16 @@ public class ScoreController : MonoBehaviour {
 	private bool isDead = false;
 
 	public Text scoreText;
+	public Text ChampText;
+	public Text highScoreText;
 	public MenuController deathMenu;
 	public Transform player;
 	public PlatformController platformController;
 
 	// Use this for initialization
 	void Start () {
-		
+		//PlayerPrefs.SetFloat ("HighScore", 0.0f);
+		DispHighScore ();
 	}
 	
 	// Update is called once per frame
@@ -28,13 +31,18 @@ public class ScoreController : MonoBehaviour {
 			return;
 		}
 
-		if (score >= scoreToNextLevel) {
+		/*if (score >= scoreToNextLevel) {
 			LevelUp ();
-		}
+		}*/
 
 		//score += Time.deltaTime;
 		score = platformController.GetScore();
 		scoreText.text = "Score: " + ((int)score).ToString ();
+		Faster ();
+	}
+
+	void Faster() {
+		player.GetComponent<PlayerController>().SetSpeed (score);
 	}
 
 	void LevelUp() {
@@ -52,8 +60,18 @@ public class ScoreController : MonoBehaviour {
 	public void onDeath() {
 		
 		isDead = true;
-		if (score > PlayerPrefs.GetFloat ("HighScore"))
+		if (score > PlayerPrefs.GetFloat ("HighScore")) {
 			PlayerPrefs.SetFloat ("HighScore", score);
+			deathMenu.ToggleHighScore ();
+		}
 		deathMenu.ToggleEndMenu (score);
+	}
+
+	public void NewChamp() {
+		PlayerPrefs.SetString ("Champ", ChampText.text);
+	}
+
+	void DispHighScore() {
+		highScoreText.text = ("High Score: " + PlayerPrefs.GetString ("Champ") + " " + PlayerPrefs.GetFloat ("HighScore").ToString ());
 	}
 }

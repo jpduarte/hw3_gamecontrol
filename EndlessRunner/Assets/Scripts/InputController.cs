@@ -5,18 +5,18 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-public class InputController
-{
+public class InputController:  MonoBehaviour{
 	public float CurrentValue;
 	public string stringtoprint;
-	public bool connection_status =false;//this is a flag to shut down the client in case we change of scene
+	public bool connection_status = false;//this is a flag to shut down the client in case we change of scene
 
 	public void Begin(string ipAddress, int port)
 	{
-
+		print ("IP" + ipAddress);
 		// Give the network stuff its own special thread
 		var thread = new Thread(() =>
 			{
+				
 				// We'll use `LowPassFilter` to filter out some incorrect readings coming from the sensor
 				//var filter = new LowPassFilter(0.95f);
 
