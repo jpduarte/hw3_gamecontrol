@@ -60,7 +60,7 @@ def plot_3D(data, view_from_top=False):
     ax = fig.add_subplot(111, projection='3d')
     colors = ['#0000ff', '#00ff00', '#ff0000', '#df239f', '#ff4d00', '#8497d1']
     for dat, color in zip(data, colors):
-        Axes3D.scatter(ax, *dat.T, c=color)
+        Axes3D.scatter(ax, *dat.T, c=color,s=150)
     if view_from_top:
         ax.view_init(elev=90.,azim=0)                # Move perspective to view from top
 
@@ -169,21 +169,35 @@ plt.title('Presorted data projected to 3 principal components')
 #NOTICE: 3D basis are needed otherwise clusters are too close
 plt.figure()
 three_new_basis, three_mean = PCA_train(three_position_training, 3)
+
+labels = ['Basis 1', 'Basis 2', 'Basis 3']
+i=0
 for comp in three_new_basis:
-    plt.plot(comp)
+    plt.plot(comp,lw=10, label=labels[i])
+    i=i+1
+plt.legend()
 #save data
+ax = plt.gca()
+ax.set_xlabel("Vector Component Index",fontsize=20)
+ax.set_ylabel("Value Component",fontsize=20)
+plt.tick_params(axis='both', which='major', labelsize=20)
+plt.tick_params(axis='both', which='minor', labelsize=20)
+ax.set_xlim([0,96])
+#axes.set_ylim([ymin,ymax])
 np.savetxt('basis3steps_josh_v1.txt', three_new_basis, delimiter=',')
 np.savetxt('mean3steps_josh_v1.txt', three_mean, delimiter=',')
 
 three_classified = PCA_classify(three_position_test, three_new_basis, three_mean)
 
 plot_3D([three_classified], False)
-plt.title('three_position_test projected to 3 principal components')
+#plt.title('three_position_test projected to 3 principal components')
 
 
 presorted_classified = [PCA_classify(arraymatvalue, three_new_basis, three_mean) for arraymatvalue in presortedmat]
 plot_3D(np.array(presorted_classified), False)
-plt.title('Presorted data projected to 3 principal components')
+plt.tick_params(axis='both', which='major', labelsize=20)
+plt.tick_params(axis='both', which='minor', labelsize=20)
+#plt.title('Presorted data projected to 3 principal components')
 
 ###################################################################################################################################  Determine the centroids in the 3 position data
 kmeans = KMeans(n_clusters=6,precompute_distances=True).fit(three_classified)

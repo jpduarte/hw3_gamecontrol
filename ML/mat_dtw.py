@@ -108,7 +108,13 @@ target.close()
 clusterindex = []
 dataall = datalist[:,1:]
 plt.figure(1)
-plt.plot( time,np.sum(datalist[:,1:],axis=1),'o')
+plt.plot( time,np.sum(datalist[:,1:],axis=1)/50000,'o')
+ax = plt.gca()
+ax.set_xlabel("Time (s)",fontsize=20)
+ax.set_ylabel("Component 1",fontsize=20)
+plt.tick_params(axis='both', which='major', labelsize=20)
+plt.tick_params(axis='both', which='minor', labelsize=20)
+
 ################################################################################## calculate all projections
 three_classified_0 = []
 three_classified_1 = []
@@ -289,8 +295,8 @@ for data in dataall[:len(dataall)//1]:
   if ((dist)<(threshold_detection) and i>min_len):
     plt.figure(1)
     #print(data_dtw_reference_sum-(data_dtw_sum-data_dtw_sum.mean()),data_dtw_reference_proj0-(data_dtw_proj0-data_dtw_proj0.mean()))
-    plt.plot( time[i-min_len:i],(data_dtw_reference_sum+data_dtw_sum.mean()),'s')
-    plt.plot( time[i-min_len:i],data_dtw_sum,'*')
+    plt.plot( time[i-min_len:i],(data_dtw_reference_sum+data_dtw_sum.mean())/50000,'s')
+    plt.plot( time[i-min_len:i],data_dtw_sum/50000,'*')
     plt.figure(6)
     plt.plot( time[i-min_len:i],(data_dtw_reference_proj0+data_dtw_proj0.mean()),'s')
     plt.plot( time[i-min_len:i],data_dtw_proj0,'*')
