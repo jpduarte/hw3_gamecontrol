@@ -17,12 +17,28 @@ public class PressureMatController : MonoBehaviour {
 	float mean_time_data0;
 	float mean_time_data1;
 	float mean_time_data2;
-	float distance;
-	float distance0;
-	float distance1;
-	float distance2;
-	float[] polynomial_squad = new float[4] {3469.0f,-689.5f,24.17f,-0.1827f};
-	float[] polynomial_push_up = new float[4] {-177.2f,-6.723f,1.115f,-0.01836f};
+	float distance = 0;
+	float distance_sum = 0;
+	float distance0 = 0;
+	float distance1 = 0;
+	float distance2 = 0;
+
+	float[] polynomial_squat0 =  new float[4]{ 1475f, -224f, 4.881f, -0.01105f };
+	float[] polynomial_squat1 =  new float[4]{ -3.937f, 48.79f, -2.24f, 0.02271f };
+	float[] polynomial_squat2 =  new float[4]{ -202.7f, 15.46f, 0.07076f, -0.006437f};
+	float[] polynomial_squat3 =  new float[4]{ -213.1f, 10.42f, 0.4034f,-0.01084f };
+
+
+	float[] polynomial_pushup0 =  new float[4]{ 1475f, -224f, 4.881f, -0.01105f };
+	float[] polynomial_pushup1 =  new float[4]{ -3.937f, 48.79f, -2.24f, 0.02271f };
+	float[] polynomial_pushup2 =  new float[4]{ -202.7f, 15.46f, 0.07076f, -0.006437f};
+	float[] polynomial_pushup3 =  new float[4]{ -213.1f, 10.42f, 0.4034f,-0.01084f };
+
+						
+
+	float squat_threshold = 6250000000.0f;
+	float pushup_threshold =   6250000000.0f;
+
 	//for squad: -0.1827 x3 + 24.17 x2 - 689.5 x + 3469, average, length 44, order 4 for distance
 	//for push-up: -0.01836 x3 + 1.115 x2 - 6.723 x - 177.2, length: 44
 	float[] mat_data = new float[96];
@@ -37,15 +53,32 @@ public class PressureMatController : MonoBehaviour {
 	string path;
 	int j;
 	bool pushUpDetected = false;
-	int timeDataSize = 44;
-	private Queue<float> matDataTimeQueue;
-	float[] add_data_time;
-	private Queue<float> projectionQueue0; 
-	float[] projection0_time;
-	private Queue<float> projectionQueue1;
-	float[] projection1_time; 
-	private Queue<float> projectionQueue2; 
-	float[] projection2_time; 
+	bool squatDetected = false;
+
+	float[] squat_weights = new float[4] {0.0f,0f,0f,1f};
+	float[] pushUp_weights = new float[4] {0f,0f,0f,1f};
+
+
+	Queue<float> matDataTimeQueue = new Queue<float>(60);
+	float[] add_data_time = Enumerable.Repeat(0.0f,60).ToArray();
+	Queue<float> projectionQueue0 = new Queue<float>(60);
+	float[] projection0_time = Enumerable.Repeat(0.0f,60).ToArray();
+	Queue<float> projectionQueue1 = new Queue<float>(60);
+	float[] projection1_time = Enumerable.Repeat(0.0f,60).ToArray();
+	Queue<float> projectionQueue2 = new Queue<float>(60);
+	float[] projection2_time = Enumerable.Repeat(0.0f,60).ToArray();
+
+	float add_data_smooth = 0; 
+	float[] projection_smooth = new float[3];
+
+	float[] add_data_filter = new float[5];  
+	float[] projection0_filter = new float[5];
+	float[] projection1_filter = new float[5];
+	float[] projection2_filter = new float[5];
+
+	int filter_count = 0;
+	int filter_order = 5;
+
 
 	System.IO.StreamReader file1; 
 
@@ -56,27 +89,8 @@ public class PressureMatController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		Queue<float> matDataTimeQueue = new Queue<float>(timeDataSize);
-		float[] add_data_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
-		Queue<float> projectionQueue0 = new Queue<float>(timeDataSize);
-		float[] projection0_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
-		Queue<float> projectionQueue1 = new Queue<float>(44);
-		float[] projection1_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
-		Queue<float> projectionQueue2 = new Queue<float>(44);
-		float[] projection2_time = Enumerable.Repeat(0.0f,timeDataSize).ToArray();
-
 		playerController = player.GetComponent<PlayerController> ();
 		LoadTrainingSet ();
-
-		//path = "../matplot/matdraw/2016_11_26_test.txt";
-		//file1 = new System.IO.StreamReader(path);
-
-		//Get number of lines
-		/*
-		while (file1.ReadLine() != null)
-		{
-			lineCount++;
-		}*/
 
 
 	}
@@ -85,18 +99,10 @@ public class PressureMatController : MonoBehaviour {
 	void Update () {
 
 
-		if (playerController.GetPushUp()) {
+		if (playerController.GetExercise()) {
 			//print ("MAT GO!");
 			mat_data = playerController.GetMatData();
 			PressureMatDetection ();
-			/*print ("Line Count" + lineCount);
-			if (lineNumber < lineCount) {
-				//print ("INSIDE MAT");
-				PressureMatDetection ();
-				lineNumber++;
-			} else {
-				lineNumber = 0;
-			}*/
 		}
 
 
@@ -169,70 +175,123 @@ public class PressureMatController : MonoBehaviour {
 		//print ("Data" + data);
 		//Console.WriteLine(data.Length);
 		//time = (mat_data[0])/1000;
+
+
+		//Find Sum 
 		add_data = 0;
-		for (int i = 0; i < mat_data.Length; i++)
-		{
-			add_data = add_data+mat_data[i];
-			//Console.WriteLine(data[i]);
-		//print("Mat Data[" + i.ToString() + "]: " + mat_data[i].ToString());
-		}
+		add_data = mat_data.Sum ();
 		print ("Add Data " + add_data);
-		//print ("Threshold " + threshold_data);
+		print ("Threshold " + threshold_data);
+
+		if (filter_count > filter_order)
+			filter_count = 0;
+
+
 		//Classification:
 		//state= -1 (no one on board), 4: right feet, 1: left feet, 0: both foots, 2: right hand, 5: left hand, 3: both hands
-		if (add_data>threshold_data) {//check threshold data
+		if (add_data > threshold_data) {//check threshold data
+			
+			//filter add data
+			add_data_filter [filter_count] = add_data;
+			add_data_smooth = add_data_filter.Sum ()/ filter_order;
+
 			projections = PCA_classify(mat_data,basis,mean_vector,projections);
+
+			//filter projections
+			projection0_filter [filter_count] = projections [0];
+			projection1_filter [filter_count] = projections [1];
+			projection2_filter [filter_count] = projections [2];
+
+			projection_smooth[0] = projection0_filter.Sum ()/ filter_order;
+			projection_smooth[1] = projection1_filter.Sum ()/ filter_order;
+			projection_smooth[2] = projection2_filter.Sum ()/ filter_order;
+
 		//print ("Projections [0] " + projections[0] + "Projections [1] " + projections[1] + "Projections [2] " + projections[2]);
-			state = which_cluster(projections,centroids);
+			//state = which_cluster(projections,centroids);
+			state = which_cluster(projection_smooth,centroids);
+
+
+
+			//Get Mean Times
+			matDataTimeQueue.Enqueue (add_data_smooth);
+			add_data_time = matDataTimeQueue.ToArray ();
+			mean_time_data = mean_data (add_data_time);
+
+
+			projectionQueue0.Enqueue (projection_smooth [0]);
+			projection0_time = projectionQueue0.ToArray ();
+			//projection0_time = FIFO_update(projection0_time,projections[0]);
+			mean_time_data0 = mean_data (projection0_time);
+
+			projectionQueue1.Enqueue (projection_smooth [1]);
+			projection1_time = projectionQueue1.ToArray ();
+			//projection1_time = FIFO_update(projection1_time,projections[1]);
+			mean_time_data1 = mean_data (projection1_time);
+
+
+			projectionQueue2.Enqueue (projection_smooth [2]);
+			projection2_time = projectionQueue2.ToArray ();
+			//projection2_time = FIFO_update(projection2_time,projections[1]);
+			mean_time_data2 = mean_data (projection2_time);
+
+
+			//Check Squats
+			distance_sum = distance_to_template (add_data_time, mean_time_data, polynomial_squat0);
+
+			distance0 = distance_to_template (projection0_time, mean_time_data0, polynomial_squat1);
+
+			distance1 = distance_to_template (projection1_time, mean_time_data1, polynomial_squat2);
+
+			distance2 = distance_to_template (projection2_time, mean_time_data2, polynomial_squat3);
+
+			distance = distance_sum * squat_weights [0] + distance0 * squat_weights [1] + distance1 * squat_weights [2] + distance2 * squat_weights [3];
+
+			print ("Distance: " + distance);
+			if ((distance) < squat_threshold) {
+				print ("Squat");
+				squatDetected = true;
+			} else {
+				squatDetected = false;
+			}
+
+
+			//Check PushUp
+			distance_sum = distance_to_template (add_data_time, mean_time_data, polynomial_pushup0);
+
+			distance0 = distance_to_template (projection0_time, mean_time_data0, polynomial_pushup1);
+
+			distance1 = distance_to_template (projection1_time, mean_time_data1, polynomial_pushup2);
+
+			distance2 = distance_to_template (projection2_time, mean_time_data2, polynomial_pushup3);
+
+			distance = distance_sum * pushUp_weights [0] + distance0 * pushUp_weights [1] + distance1 * pushUp_weights [2] + distance2 * pushUp_weights [3];
+
+			if ((distance) < pushup_threshold) {
+				print ("PushUp");
+				pushUpDetected = true;
+			} else {
+				pushUpDetected = false;
+			}
+
 		} else {
 			state=-1;
+			pushUpDetected = false;
+			squatDetected = false;
 		}
+
+		filter_count++;
 		//Console.WriteLine(time);
 		print("State: " + state);
-		//Console.WriteLine(state);
-
-		//detect squad, this is like a switch data, so a positive must be handle like such, i.e. many positives will be together
-		//add_data_time = FIFO_update(add_data_time,add_data);
-		matDataTimeQueue.Enqueue (add_data);
-		add_data_time = matDataTimeQueue.ToArray ();
-		mean_time_data = mean_data(add_data_time);
-		distance = distance_to_template(add_data_time,mean_time_data,polynomial_squad);
-		Console.WriteLine(distance);
-		if ((distance)<4.267e14){
-			print("squad squad squad squad squad squad squad");
-		}
-
-		//detect push up, this is like a switch data, so a positive must be handle like such, i.e. many positives will be together
-		projectionQueue0.Enqueue (projections[0]);
-		projection0_time = projectionQueue0.ToArray ();
-		//projection0_time = FIFO_update(projection0_time,projections[0]);
-		mean_time_data0 = mean_data(projection0_time);
-		distance0 = distance_to_template(projection0_time,mean_time_data0,polynomial_push_up);
-
-		projectionQueue1.Enqueue (projections[1]);
-		projection1_time = projectionQueue1.ToArray ();
-		//projection1_time = FIFO_update(projection1_time,projections[1]);
-		mean_time_data1 = mean_data(projection1_time);
-		distance1 = distance_to_template(projection1_time,mean_time_data1,polynomial_push_up);
-
-		projectionQueue2.Enqueue (projections[2]);
-		projection2_time = projectionQueue2.ToArray ();
-		//projection2_time = FIFO_update(projection2_time,projections[1]);
-		mean_time_data2 = mean_data(projection2_time);
-		distance2 = distance_to_template(projection2_time,mean_time_data2,polynomial_push_up);
-
-		if ((distance) < 7483147950.81) {
-			print ("push-up push-up push-up push-up push-up push-up ");
-			pushUpDetected = true;
-		} else {
-			pushUpDetected = false;
-		}
 		///////////////////////////////////////////////////////////
 	}
 
 
 	public bool GetPushUpDetected() {
 		return pushUpDetected;
+	}
+
+	public bool GetSquatDetected() {
+		return squatDetected;
 	}
 
 

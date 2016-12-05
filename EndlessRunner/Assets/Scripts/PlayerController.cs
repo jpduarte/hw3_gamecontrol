@@ -152,7 +152,7 @@ public class PlayerController : MonoBehaviour {
 		}
 
 
-		float animateHorizontal = 0;
+		//float animateHorizontal = 0;
 		float moveHorizontal = 0;
 
 		if (_inputController.connection_status)
@@ -160,18 +160,13 @@ public class PlayerController : MonoBehaviour {
 			//print(_inputController.stringtoprint);
 
 			string[] move = _inputController.stringtoprint.Split(',');
-			//string[] mat_data_string = ;
-			//Array.Copy(move, 2, mat_data_string, 0, move.Length - 2);
-			//int[] mat_data = Array.ConvertAll(mat_data_string.Select(t => t.string).ToArray(), System.Convert.ToInt32);
-			//int[] mat_data = Array.ConvertAll(move, int.Parse);
-			//int[] mat_data = Array.ConvertAll<string, int>(mat_data_string, int.Parse);
 
 			if (move[1] != null) {
 				//print ("Accel Data: "+ move[1]);
 				for (int i = 0; i < move.Length - 3 ; i++) {
 					mat_data [i] = float.Parse (move [i+2]);
 				}
-				animateHorizontal = float.Parse (move [1]);
+			//	animateHorizontal = float.Parse (move [1]);
 				moveHorizontal = float.Parse (move [1]);
 				//animateHorizontal = Input.GetAxis("Horizontal");
 				//moveHorizontal = Input.GetAxisRaw("Horizontal");
@@ -179,16 +174,10 @@ public class PlayerController : MonoBehaviour {
 			}
 		} else
 		{
-			animateHorizontal = Input.GetAxis("Horizontal");
+			//animateHorizontal = Input.GetAxis("Horizontal");
 			moveHorizontal = Input.GetAxisRaw("Horizontal");
 		}
-
-		//Get inputs here
-		/*
-		float animateHorizontal = Input.GetAxis ("Horizontal");
-		float moveHorizontal = Input.GetAxisRaw ("Horizontal");
-		*/
-
+			
 
 		//Move the player
 		Move (moveHorizontal);
@@ -280,7 +269,7 @@ public class PlayerController : MonoBehaviour {
 	public void PushUpAnimation () {
 		bool isFeet = true;
 		bool isHands = true;
-
+		exerciseText.text = pushUpCount.ToString() + " Out of "  + pushUpNumber.ToString() + " PushUps!";
 		//Don't get into pushup position until player gets off board
 		//if (!isFeet) {
 		if(true) {
@@ -297,7 +286,6 @@ public class PlayerController : MonoBehaviour {
 			}
 			if (pushUpDetected && pushUpDone) {
 				pushUpCount++;
-				exerciseText.text = pushUpCount.ToString() + " Out of "  + pushUpNumber.ToString() + " PushUps!";
 				pushUpDone = false;
 			}
 
@@ -353,8 +341,8 @@ public class PlayerController : MonoBehaviour {
 	}
 		
 
-	public bool GetPushUp() {
-		return isIdleToPushUp;
+	public bool GetExercise() {
+		return (PushUpState || SquatState);
 	}
 
 	public void StartSquat() {
@@ -364,16 +352,15 @@ public class PlayerController : MonoBehaviour {
 
 	public void SquatAnimation() {
 		bool isFeet = true;
-
+		exerciseText.text = squatCount.ToString() + " Out of "  + squatNumber.ToString() + " Squats!";
 		// Don't start squat animation until both feet on
 		if (isFeet) {
-			squatDetected = pressureMatController.GetPushUpDetected ();
+			squatDetected = pressureMatController.GetSquatDetected ();
 			if (!squatDetected) {
 				squatDone = true;
 			}
 			if (squatDetected && squatDone) {
 				squatCount++;
-				exerciseText.text = squatCount.ToString() + " Out of "  + squatNumber.ToString() + " Squats!";
 				squatDone = false;
 			}
 
