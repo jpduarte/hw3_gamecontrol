@@ -4,15 +4,23 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System;
 
 public class InputController:  MonoBehaviour{
 	public float CurrentValue;
 	public string stringtoprint;
 	public bool connection_status = false;//this is a flag to shut down the client in case we change of scene
+	public Queue<string> RedBearData = new Queue<string>(1000);
+	//public Queue<DateTime> TimeFIFO = new Queue<DateTime>(1000);
+	public Queue<int> RedBeatTag = new Queue<int>(1000);
+	int tagNum = 0;
+
 
 	public void Begin(string ipAddress, int port)
 	{
 		print ("IP" + ipAddress);
+		RedBearData.Clear ();
+		//TimeFIFO.Clear ();
 		// Give the network stuff its own special thread
 		var thread = new Thread(() =>
 			{
@@ -46,7 +54,15 @@ public class InputController:  MonoBehaviour{
 						// Once we have a reading, convert our buffer to a string, since the values are coming as strings
 						var str = Encoding.ASCII.GetString(buffer.ToArray());
 						stringtoprint = str;
+						//print("From wifi " + str);
+						RedBearData.Enqueue(str);
+						//TimeFIFO.Enqueue(DateTime.Now);
+						if(tagNum>1000)
+							tagNum = 0;
+						RedBeatTag.Enqueue(tagNum);
+						tagNum++;
 
+						
 						// Clear the buffer ready for another reading
 						buffer.Clear();
 					}

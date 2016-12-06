@@ -27,6 +27,8 @@ public class PlayerController : MonoBehaviour {
 	private bool SquatState = false;
 	//private bool isPushUp = false;
 
+	private DateTime MatTimeStamp = DateTime.Now;
+
 
 
 	private float timeStart = 0.0f;
@@ -56,6 +58,7 @@ public class PlayerController : MonoBehaviour {
 	public MenuController menuController;
 	public float powerUpTimeLimit = 10.0f;
 	public Text IPText;
+	private int tagNum = 0;
 
 	private bool activeMagnet = false;
 	private bool activeStar = false;
@@ -80,7 +83,7 @@ public class PlayerController : MonoBehaviour {
 		exerciseText.text = "";
 		timeStart = Time.time;
 
-		_inputController.Begin("192.168.2.4", 23);
+		_inputController.Begin("172.20.10.4", 23);
 
 	}
 	
@@ -104,6 +107,7 @@ public class PlayerController : MonoBehaviour {
 
 
 
+
 		timeAfterPushup = Time.time;
 
 		if (((timeAfterPushup - timeFinishPushUp) > 1.0f) && !isIdleToPushUp) {
@@ -122,6 +126,8 @@ public class PlayerController : MonoBehaviour {
 			controller.Move (Vector3.forward * vSpeed * Time.deltaTime);
 			return;
 		}
+
+
 
 		if (activeMagnet || activeStar) {
 			powerUpLight.enabled = true;
@@ -151,36 +157,43 @@ public class PlayerController : MonoBehaviour {
 			vStop = 1.0f;
 		}
 
-
 		//float animateHorizontal = 0;
 		float moveHorizontal = 0;
 
-		if (_inputController.connection_status)
-		{
+		if (_inputController.connection_status) {
 			//print(_inputController.stringtoprint);
 
-			string[] move = _inputController.stringtoprint.Split(',');
+			if (_inputController.RedBearData.Count > 0) {
+				string RedBearLine = _inputController.RedBearData.Dequeue ();
+				//MatTimeStamp = _inputController.TimeFIFO.Dequeue ();
+				tagNum = _inputController.RedBeatTag.Dequeue();
+				print ("tagNum" + tagNum);
+				string[] move = RedBearLine.Split (',');
+				//print ("RedBearLine " + RedBearLine);
 
-			if (move[1] != null) {
-				//print ("Accel Data: "+ move[1]);
-				for (int i = 0; i < move.Length - 3 ; i++) {
-					mat_data [i] = float.Parse (move [i+2]);
+				if (move [move.Length - 1] != null) {
+					//print ("Accel Data: "+ move[1]);
+					for (int i = 0; i < move.Length - 3; i++) {
+						mat_data [i] = float.Parse (move [i + 2]);
+						if (mat_data [i] < 0)
+							print ("Negative: " + mat_data [i].ToString ());
+					}
+					//	animateHorizontal = float.Parse (move [1]);
+					//moveHorizontal = float.Parse (move [1]);
+					//animateHorizontal = Input.GetAxis("Horizontal");
+					moveHorizontal = Input.GetAxisRaw ("Horizontal");
+					//print ("Move Horizontal " + moveHorizontal);
 				}
-			//	animateHorizontal = float.Parse (move [1]);
-				moveHorizontal = float.Parse (move [1]);
-				//animateHorizontal = Input.GetAxis("Horizontal");
-				//moveHorizontal = Input.GetAxisRaw("Horizontal");
-				//print ("Move Horizontal " + moveHorizontal);
 			}
-		} else
-		{
+		} else {
 			//animateHorizontal = Input.GetAxis("Horizontal");
 			moveHorizontal = Input.GetAxisRaw("Horizontal");
 		}
-			
+
 
 		//Move the player
 		Move (moveHorizontal);
+
 
 		//Talk to animator controller
 		Animate ();
@@ -189,6 +202,7 @@ public class PlayerController : MonoBehaviour {
 
 
 	}
+
 
 	void Move(float moveHorizontal) {
 
@@ -401,6 +415,14 @@ public class PlayerController : MonoBehaviour {
 
 	public float[] GetMatData() {
 		return mat_data;
+	}
+
+	public DateTime GetMatTimeStamp() {
+		return MatTimeStamp;
+	}
+
+	public int GetTagNum () {
+		return tagNum;
 	}
 
 	public void NewIPAddress() {

@@ -79,6 +79,11 @@ public class PressureMatController : MonoBehaviour {
 	int filter_count = 0;
 	int filter_order = 5;
 
+	int tagNow = 0;
+	int tagLast = 0;
+
+	DateTime matTimeStampNew = DateTime.Now;
+	DateTime matTimeStampLast = DateTime.Now;
 
 	System.IO.StreamReader file1; 
 
@@ -101,8 +106,13 @@ public class PressureMatController : MonoBehaviour {
 
 		if (playerController.GetExercise()) {
 			//print ("MAT GO!");
+
+			//matTimeStampNew = playerController.GetMatTimeStamp ();
+			tagNow = playerController.GetTagNum();
 			mat_data = playerController.GetMatData();
 			PressureMatDetection ();
+			tagLast = tagNow;
+			//matTimeStampLast = matTimeStampNew;
 		}
 
 
@@ -176,14 +186,18 @@ public class PressureMatController : MonoBehaviour {
 		//Console.WriteLine(data.Length);
 		//time = (mat_data[0])/1000;
 
+		if (tagNow == tagLast) {
+			return;
+		}
+	
 
 		//Find Sum 
 		add_data = 0;
 		add_data = mat_data.Sum ();
 		print ("Add Data " + add_data);
-		print ("Threshold " + threshold_data);
+		//print ("Threshold " + threshold_data);
 
-		if (filter_count > filter_order)
+		if (filter_count > filter_order-1)
 			filter_count = 0;
 
 
@@ -206,6 +220,7 @@ public class PressureMatController : MonoBehaviour {
 			projection_smooth[1] = projection1_filter.Sum ()/ filter_order;
 			projection_smooth[2] = projection2_filter.Sum ()/ filter_order;
 
+			//print ("Smooth Add Data" + add_data_smooth);
 		//print ("Projections [0] " + projections[0] + "Projections [1] " + projections[1] + "Projections [2] " + projections[2]);
 			//state = which_cluster(projections,centroids);
 			state = which_cluster(projection_smooth,centroids);
@@ -220,7 +235,7 @@ public class PressureMatController : MonoBehaviour {
 
 			projectionQueue0.Enqueue (projection_smooth [0]);
 			projection0_time = projectionQueue0.ToArray ();
-			//projection0_time = FIFO_update(projection0_time,projections[0]);
+			//projection0_time = FIFO_update(projection0_time,projection_smooth[0]);
 			mean_time_data0 = mean_data (projection0_time);
 
 			projectionQueue1.Enqueue (projection_smooth [1]);
@@ -246,8 +261,8 @@ public class PressureMatController : MonoBehaviour {
 
 			distance = distance_sum * squat_weights [0] + distance0 * squat_weights [1] + distance1 * squat_weights [2] + distance2 * squat_weights [3];
 
-			print ("Distance: " + distance);
-			if ((distance) < squat_threshold) {
+			//print ("Distance: " + distance);
+			if (((distance) < squat_threshold) && (matDataTimeQueue.Count == 60)) {
 				print ("Squat");
 				squatDetected = true;
 			} else {
@@ -266,7 +281,7 @@ public class PressureMatController : MonoBehaviour {
 
 			distance = distance_sum * pushUp_weights [0] + distance0 * pushUp_weights [1] + distance1 * pushUp_weights [2] + distance2 * pushUp_weights [3];
 
-			if ((distance) < pushup_threshold) {
+			if (((distance) < pushup_threshold) && (matDataTimeQueue.Count == 60)) {
 				print ("PushUp");
 				pushUpDetected = true;
 			} else {
