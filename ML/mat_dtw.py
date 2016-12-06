@@ -63,6 +63,21 @@ def selecttraindata1D(time,data,bounds):
       j=j+1
     i=i+1
   return datatotrain
+
+public float distance_to_template(float[] data, float mean_time_data, float[] polynomial){//TODO: order to change, , int order_distance
+		float distance = 0;
+		float distance_aux = 0;
+		float evaluate_poly = 0;
+		for (int j = 0; j < data.Length; j++){
+
+			evaluate_poly = polynomial[0] + polynomial[1]*j + polynomial[2]*j*j + polynomial[3]*j*j*j;
+			distance_aux=evaluate_poly-(data[j]-mean_time_data);
+			//distance_aux = distance_aux*distance_aux*distance_aux*distance_aux;
+			distance=distance+distance_aux*distance_aux*distance_aux*distance_aux;
+		}
+		return distance;
+	}
+  
 ###################################################################################################################################
 #parameters
 pathandfile = '../matplot/matdraw/josh_v1.txt'
