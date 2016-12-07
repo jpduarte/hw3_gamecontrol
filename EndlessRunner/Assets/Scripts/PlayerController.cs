@@ -83,7 +83,9 @@ public class PlayerController : MonoBehaviour {
 		exerciseText.text = "";
 		timeStart = Time.time;
 
-		_inputController.Begin("172.20.10.4", 23);
+		//_inputController.Begin("172.20.10.4", 23);
+		_inputController.Begin("192.168.2.3",23);
+
 
 	}
 	
@@ -95,7 +97,7 @@ public class PlayerController : MonoBehaviour {
 			menuController.Restart ();
 		}
 
-		if (Input.GetKeyDown (KeyCode.Space)) {
+		if (Input.GetKeyDown (KeyCode.Space) && Input.GetKeyDown(KeyCode.Return)) {
 			settingsController.SettingsMenu ();
 			if (Time.timeScale == 1) {
 				Time.timeScale = 0;
@@ -163,7 +165,7 @@ public class PlayerController : MonoBehaviour {
 		if (_inputController.connection_status) {
 			//print(_inputController.stringtoprint);
 
-			/*
+
 			if (_inputController.RedBearData.Count > 0) {
 				string RedBearLine = _inputController.RedBearData.Dequeue ();
 				//MatTimeStamp = _inputController.TimeFIFO.Dequeue ();
@@ -186,7 +188,7 @@ public class PlayerController : MonoBehaviour {
 					//print ("Move Horizontal " + moveHorizontal);
 				}
 
-			}*/
+			}
 		} else {
 			//animateHorizontal = Input.GetAxis("Horizontal");
 			moveHorizontal = Input.GetAxisRaw("Horizontal");

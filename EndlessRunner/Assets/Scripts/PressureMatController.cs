@@ -108,33 +108,11 @@ public class PressureMatController : MonoBehaviour {
 		if (playerController.GetExercise ()) {
 			//print ("MAT GO!");
 
-			if (inputController.RedBearData.Count > 0) {
-				string[] RedBearLine = inputController.RedBearData.ToArray();
-				string[] move;
-				float[] add_data ;
-				//MatTimeStamp = _inputController.TimeFIFO.Dequeue ();
-				//tagNum = _inputController.RedBeatTag.Dequeue ();
-				//print ("tagNum" + tagNum);
-				for(int j = 0; j < RedBearLine.Length; j++) {
-				 	move = RedBearLine[j].Split (',');
-					//print ("RedBearLine " + RedBearLine);
-
-					if (move [move.Length - 1] != null) {
-					//print ("Accel Data: "+ move[1]);
-						for (int i = 0; i < move.Length - 3; i++) {
-							mat_data [i] = float.Parse (move [i + 2]);
-						}
-				
-
-					}
-
 					//matTimeStampNew = playerController.GetMatTimeStamp ();
 					tagNow = playerController.GetTagNum ();
-					//mat_data = playerController.GetMatData();
+					mat_data = playerController.GetMatData();
 					tagLast = tagNow;
 					//matTimeStampLast = matTimeStampNew;
-				}
-			}
 
 		}
 
