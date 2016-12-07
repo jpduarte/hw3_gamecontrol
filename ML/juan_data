@@ -1,0 +1,15 @@
+[Command: python -u /home/bsim2015/courses/CS294-98/hw3_gamecontrol/ML/mat_dtw.py]
+sum poly:       3         2
+2.36 x - 108.7 x + 958.1 x + 2430
+proj0          3         2
+-0.1918 x + 9.327 x - 98.44 x - 38.32
+proj1          3         2
+0.06836 x - 3.367 x + 63.05 x - 419
+proj2         3         2
+0.0918 x - 1.745 x - 63.77 x + 849.6
+lenght fifo 33
+threshold 499999999999999.94
+distance_weights [1.0, 0.0, 0, 0.0]
+threshold_min 30000
+threshold_min_ave 30000
+distance_order 4.0

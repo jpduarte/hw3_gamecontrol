@@ -64,36 +64,24 @@ def selecttraindata1D(time,data,bounds):
     i=i+1
   return datatotrain
 
-public float distance_to_template(float[] data, float mean_time_data, float[] polynomial){//TODO: order to change, , int order_distance
-		float distance = 0;
-		float distance_aux = 0;
-		float evaluate_poly = 0;
-		for (int j = 0; j < data.Length; j++){
 
-			evaluate_poly = polynomial[0] + polynomial[1]*j + polynomial[2]*j*j + polynomial[3]*j*j*j;
-			distance_aux=evaluate_poly-(data[j]-mean_time_data);
-			//distance_aux = distance_aux*distance_aux*distance_aux*distance_aux;
-			distance=distance+distance_aux*distance_aux*distance_aux*distance_aux;
-		}
-		return distance;
-	}
-  
 ###################################################################################################################################
 #parameters
-pathandfile = '../matplot/matdraw/josh_v1.txt'
-pathandfile_basis = './basis3steps_josh_v1.txt'
-pathandfile_mean = './mean3steps_josh_v1.txt'
-pathandfile_cluster = './cluster3steps_josh_v1.txt'
-bounds_sum = [[41.3,44.3],[45.5,49]]
+pathandfile = '../matplot/matdraw/juan_v2.txt'
+pathandfile_basis = './basis3steps_juan_v2.txt'
+pathandfile_mean = './mean3steps_juan_v2.txt'
+pathandfile_cluster = './cluster3steps_juan_v2.txt'
+bounds_sum = [[45,46.5],[59.5,62]]
 bounds_proj0 = bounds_sum
 bounds_proj1 = bounds_sum
 bounds_proj2 = bounds_sum
 smooth_order = 5
-distance_weights = [0.0,0.0,0,1.0]#total sum, projection 1, 2 and 3
-threshold_min=15000
-threshold_min_ave=15000 #set a minimun for smoothing
+distance_weights = [1.0,0.0,0,0.0]#total sum, projection 1, 2 and 3
+threshold_min=30000
+threshold_min_ave=30000 #set a minimun for smoothing
 distance_order = 4.0
-threshold_detection = 1/1.6e-10
+threshold_detection = 1/2e-15
+norm_total=1
 
 #initialization
 poly1d_train_sum = np.poly1d([0,0,0,0])
@@ -123,7 +111,7 @@ target.close()
 clusterindex = []
 dataall = datalist[:,1:]
 plt.figure(1)
-plt.plot( time,np.sum(datalist[:,1:],axis=1)/50000,'o')
+plt.plot( time,np.sum(datalist[:,1:],axis=1)/norm_total,'o')
 ax = plt.gca()
 ax.set_xlabel("Time (s)",fontsize=20)
 ax.set_ylabel("Component 1",fontsize=20)
@@ -310,8 +298,8 @@ for data in dataall[:len(dataall)//1]:
   if ((dist)<(threshold_detection) and i>min_len):
     plt.figure(1)
     #print(data_dtw_reference_sum-(data_dtw_sum-data_dtw_sum.mean()),data_dtw_reference_proj0-(data_dtw_proj0-data_dtw_proj0.mean()))
-    plt.plot( time[i-min_len:i],(data_dtw_reference_sum+data_dtw_sum.mean())/50000,'s')
-    plt.plot( time[i-min_len:i],data_dtw_sum/50000,'*')
+    plt.plot( time[i-min_len:i],(data_dtw_reference_sum+data_dtw_sum.mean())/norm_total,'s')
+    plt.plot( time[i-min_len:i],data_dtw_sum/norm_total,'*')
     plt.figure(6)
     plt.plot( time[i-min_len:i],(data_dtw_reference_proj0+data_dtw_proj0.mean()),'s')
     plt.plot( time[i-min_len:i],data_dtw_proj0,'*')
@@ -331,7 +319,15 @@ plt.plot(  time[:len(three_classified_0)],distance_all,'o')
 plt.figure(9)
 plt.plot( range(min_len),data_dtw_reference_sum,'o')
 
-print(poly1d_train_sum,poly1d_train_proj0,poly1d_train_proj1,poly1d_train_proj2)
-print(min_len)
+print("sum poly:",poly1d_train_sum)
+print("proj0",poly1d_train_proj0)
+print("proj1",poly1d_train_proj1)
+print("proj2",poly1d_train_proj2)
+print("lenght fifo", min_len)
 print("threshold",(threshold_detection))
+print("distance_weights",distance_weights)
+print("threshold_min",threshold_min)
+print("threshold_min_ave",threshold_min_ave)
+print("distance_order",distance_order)
+
 plt.show()

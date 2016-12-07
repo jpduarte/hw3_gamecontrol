@@ -106,7 +106,7 @@ def selecttraindata(time,data,bounds):
 ###################################################################################################################################    load data
 
 #pathandfile = '../matplot/matdraw/feetcheck.txt'
-pathandfile = '../matplot/matdraw/josh_v1.txt'
+pathandfile = '../matplot/matdraw/juan_v2.txt'
 #pathandfile = '../matplot/matdraw/2016_11_26_test.txt'
 target = open( pathandfile, 'r')
 datalist = loadtxt(pathandfile,delimiter=',',usecols=tuple(np.arange(97)))
@@ -117,7 +117,7 @@ plt.plot( time,np.sum(datalist[:,1:],axis=1)/96,'o')
 
 
 #bounds = [[4.5,11.5],[15.5,20.0],[25,29.5],[67,73],[76.5,81],[86,93]]
-bounds = [[3.5,11],[14.5,21.0],[24.5,30.5],[67,73],[77,82],[84.5,91]]
+bounds = [[4.5,12],[16,22.0],[27,35],[84,92],[94.5,101],[108,113.5]]
 presortedmat = selecttraindata(time,datalist[:,1:],bounds)
 #print (len(presortedmat[0]))
 
@@ -183,9 +183,8 @@ ax.set_ylabel("Value Component",fontsize=20)
 plt.tick_params(axis='both', which='major', labelsize=20)
 plt.tick_params(axis='both', which='minor', labelsize=20)
 ax.set_xlim([0,96])
-#axes.set_ylim([ymin,ymax])
-np.savetxt('basis3steps_josh_v1.txt', three_new_basis, delimiter=',')
-np.savetxt('mean3steps_josh_v1.txt', three_mean, delimiter=',')
+np.savetxt('basis3steps_juan_v2.txt', three_new_basis, delimiter=',')
+np.savetxt('mean3steps_juan_v2.txt', three_mean, delimiter=',')
 
 three_classified = PCA_classify(three_position_test, three_new_basis, three_mean)
 
@@ -211,7 +210,7 @@ centroid3 = centroid_list[2]
 centroid4 = centroid_list[3]
 centroid5 = centroid_list[4]
 centroid6 = centroid_list[5]
-np.savetxt('cluster3steps_josh_v1.txt', centroid_list, delimiter=',')
+np.savetxt('cluster3steps_juan_v2.txt', centroid_list, delimiter=',')
 
 print(centroid_list)
 '''
