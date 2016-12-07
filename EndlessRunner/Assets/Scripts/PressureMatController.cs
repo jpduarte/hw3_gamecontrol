@@ -8,9 +8,10 @@ using System.Linq;
 
 public class PressureMatController : MonoBehaviour {
 
+	public InputController inputController;
 	public GameObject player;
 	private PlayerController playerController;
-	public int threshold_data = 15000;
+	private float threshold_data = 25000f;
 	string line;
 	float time;
 	float mean_time_data;
@@ -55,8 +56,8 @@ public class PressureMatController : MonoBehaviour {
 	bool pushUpDetected = false;
 	bool squatDetected = false;
 
-	float[] squat_weights = new float[4] {0.0f,0f,0f,1f};
-	float[] pushUp_weights = new float[4] {0f,0f,0f,1f};
+	float[] squat_weights = new float[4] {0f,0f,0f,1f};
+	float[] pushUp_weights = new float[4] {1f,0f,0f,0f};
 
 
 	Queue<float> matDataTimeQueue = new Queue<float>(60);
@@ -104,15 +105,37 @@ public class PressureMatController : MonoBehaviour {
 	void Update () {
 
 
-		if (playerController.GetExercise()) {
+		if (playerController.GetExercise ()) {
 			//print ("MAT GO!");
 
-			//matTimeStampNew = playerController.GetMatTimeStamp ();
-			tagNow = playerController.GetTagNum();
-			mat_data = playerController.GetMatData();
-			PressureMatDetection ();
-			tagLast = tagNow;
-			//matTimeStampLast = matTimeStampNew;
+			if (inputController.RedBearData.Count > 0) {
+				string[] RedBearLine = inputController.RedBearData.ToArray();
+				string[] move;
+				float[] add_data ;
+				//MatTimeStamp = _inputController.TimeFIFO.Dequeue ();
+				//tagNum = _inputController.RedBeatTag.Dequeue ();
+				//print ("tagNum" + tagNum);
+				for(int j = 0; j < RedBearLine.Length; j++) {
+				 	move = RedBearLine[j].Split (',');
+					//print ("RedBearLine " + RedBearLine);
+
+					if (move [move.Length - 1] != null) {
+					//print ("Accel Data: "+ move[1]);
+						for (int i = 0; i < move.Length - 3; i++) {
+							mat_data [i] = float.Parse (move [i + 2]);
+						}
+				
+
+					}
+
+					//matTimeStampNew = playerController.GetMatTimeStamp ();
+					tagNow = playerController.GetTagNum ();
+					//mat_data = playerController.GetMatData();
+					tagLast = tagNow;
+					//matTimeStampLast = matTimeStampNew;
+				}
+			}
+
 		}
 
 
@@ -186,10 +209,11 @@ public class PressureMatController : MonoBehaviour {
 		//Console.WriteLine(data.Length);
 		//time = (mat_data[0])/1000;
 
+			/*
 		if (tagNow == tagLast) {
 			return;
 		}
-	
+	*/
 
 		//Find Sum 
 		add_data = 0;
@@ -261,6 +285,7 @@ public class PressureMatController : MonoBehaviour {
 
 			distance = distance_sum * squat_weights [0] + distance0 * squat_weights [1] + distance1 * squat_weights [2] + distance2 * squat_weights [3];
 
+			//print ("Squat Distance" + distance);
 			//print ("Distance: " + distance);
 			if (((distance) < squat_threshold) && (matDataTimeQueue.Count == 60)) {
 				print ("Squat");
@@ -281,6 +306,7 @@ public class PressureMatController : MonoBehaviour {
 
 			distance = distance_sum * pushUp_weights [0] + distance0 * pushUp_weights [1] + distance1 * pushUp_weights [2] + distance2 * pushUp_weights [3];
 
+			//print ("PushUp Distance" + distance);
 			if (((distance) < pushup_threshold) && (matDataTimeQueue.Count == 60)) {
 				print ("PushUp");
 				pushUpDetected = true;
@@ -290,13 +316,14 @@ public class PressureMatController : MonoBehaviour {
 
 		} else {
 			state=-1;
+			//print ("smaller than threshold");
 			pushUpDetected = false;
 			squatDetected = false;
 		}
 
 		filter_count++;
 		//Console.WriteLine(time);
-		print("State: " + state);
+		print("State: " + state.ToString());
 		///////////////////////////////////////////////////////////
 	}
 
@@ -307,6 +334,10 @@ public class PressureMatController : MonoBehaviour {
 
 	public bool GetSquatDetected() {
 		return squatDetected;
+	}
+
+	public int GetState() {
+		return state;
 	}
 
 

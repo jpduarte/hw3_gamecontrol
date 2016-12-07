@@ -163,11 +163,12 @@ public class PlayerController : MonoBehaviour {
 		if (_inputController.connection_status) {
 			//print(_inputController.stringtoprint);
 
+			/*
 			if (_inputController.RedBearData.Count > 0) {
 				string RedBearLine = _inputController.RedBearData.Dequeue ();
 				//MatTimeStamp = _inputController.TimeFIFO.Dequeue ();
 				tagNum = _inputController.RedBeatTag.Dequeue();
-				print ("tagNum" + tagNum);
+				//print ("tagNum" + tagNum);
 				string[] move = RedBearLine.Split (',');
 				//print ("RedBearLine " + RedBearLine);
 
@@ -184,7 +185,8 @@ public class PlayerController : MonoBehaviour {
 					moveHorizontal = Input.GetAxisRaw ("Horizontal");
 					//print ("Move Horizontal " + moveHorizontal);
 				}
-			}
+
+			}*/
 		} else {
 			//animateHorizontal = Input.GetAxis("Horizontal");
 			moveHorizontal = Input.GetAxisRaw("Horizontal");
@@ -281,17 +283,25 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	public void PushUpAnimation () {
-		bool isFeet = true;
-		bool isHands = true;
+		bool isFeet;
+		bool isHands;
+		int state = pressureMatController.GetState ();
+		if (state == 2 || state == 3) {
+			isFeet = true;
+			isHands = true;
+		} else {
+			isFeet = false;
+			isHands = false;
+		}
 		exerciseText.text = pushUpCount.ToString() + " Out of "  + pushUpNumber.ToString() + " PushUps!";
 		//Don't get into pushup position until player gets off board
 		//if (!isFeet) {
-		if(true) {
+		if(!isFeet) {
 			isIdleToPushUp = true;
 		}
 
 		//Don't start pushup until hands on board
-		if (isIdleToPushUp && isHands) {
+		if ((isIdleToPushUp && isHands) || isPushUp) {
 
 			//Check if pushup detected
 			pushUpDetected = pressureMatController.GetPushUpDetected ();
@@ -336,23 +346,7 @@ public class PlayerController : MonoBehaviour {
 
 		
 	}
-
-	public void DoneExercise() {
-		isIdle = false;
-
-		pushUpCount = 0;
-		PushUpState = false;
-		isIdleToPushUp = false;
-		isPushUpToIdle = false;
-		isPushUp = false;
-
-		squatCount = 0;
-		SquatState = false;
-		isSquat = false;
-
-		exerciseText.text = "Good Job!";
-		timeFinishPushUp = Time.time;
-	}
+		
 		
 
 	public bool GetExercise() {
@@ -365,10 +359,19 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	public void SquatAnimation() {
-		bool isFeet = true;
 		exerciseText.text = squatCount.ToString() + " Out of "  + squatNumber.ToString() + " Squats!";
+		bool isFeet;
+		bool isHands;
+		int state = pressureMatController.GetState ();
+		if (state == 2 || state == 3) {
+			isFeet = true;
+			isHands = true;
+		} else {
+			isFeet = false;
+			isHands = false;
+		}
 		// Don't start squat animation until both feet on
-		if (isFeet) {
+		if (isFeet || isSquat) {
 			squatDetected = pressureMatController.GetSquatDetected ();
 			if (!squatDetected) {
 				squatDone = true;
@@ -386,6 +389,23 @@ public class PlayerController : MonoBehaviour {
 				DoneExercise ();
 			}
 		}
+	}
+
+	public void DoneExercise() {
+		isIdle = false;
+
+		pushUpCount = 0;
+		PushUpState = false;
+		isIdleToPushUp = false;
+		isPushUpToIdle = false;
+		isPushUp = false;
+
+		squatCount = 0;
+		SquatState = false;
+		isSquat = false;
+
+		exerciseText.text = "Good Job!";
+		timeFinishPushUp = Time.time;
 	}
 		
 	public float GetScore() {
@@ -423,6 +443,14 @@ public class PlayerController : MonoBehaviour {
 
 	public int GetTagNum () {
 		return tagNum;
+	}
+
+	public void FakeSquat() {
+		squatCount++;
+	}
+
+	public void FakePushUp() {
+		pushUpCount++;
 	}
 
 	public void NewIPAddress() {

@@ -184,7 +184,7 @@ ModelImporter:
       curves: []
       events:
       - time: 0.5021097
-        functionName: PushUpCount
+        functionName: FakePushUp
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: 594399b6c37154391adeb16f7d26a6ec,
           type: 3}
